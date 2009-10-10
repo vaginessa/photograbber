@@ -6,12 +6,12 @@ Usage:
 """
 from setuptools import setup
 
-DATA_FILES = ['img/1.ppm','img/2.ppm','img/3.ppm','img/4.ppm']
+DATA_FILES = ['img']
 
 setup(
     name="PhotoGrabber",
     data_files=DATA_FILES,
     setup_requires=['py2app'],
     app=['pg.py'],
-    options=dict(py2app=dict(argv_emulation=True,iconfile='pg.icns')),
+    options=dict(py2app=dict(argv_emulation=True,iconfile='img/pg.icns')),
 )
