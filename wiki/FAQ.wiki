@@ -1,0 +1,10 @@
+#summary Frequently Asked Questions
+#labels Featured
+
+= Facebook says I have 600 photos and PG only downloads 300 omgwtfbbq?=
+
+Those pesky security settings are to blame here.  Applications can only access information that is most public.  If your friends have security settings turned on and arn't using PG then PG cannot download those pictures.  Lame.
+
+= Will this app steal my credit card number and then spam my friends??? =
+
+No. Check the sauce code.
