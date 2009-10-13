@@ -4,11 +4,14 @@ from tkMessageBox import *
 from facebook import Facebook
 import tkDirectoryChooser
 import downloader
+import sys
 
 class Application(Frame):
     def __init__(self, master=None):
         Frame.__init__(self, master)
         self.pack(fill=BOTH, expand=1)
+        if sys.platform == 'win32':
+            self.master.iconbitmap(default='img/pg.ico')
         self.createWidgets()
 
     def createWidgets(self):
