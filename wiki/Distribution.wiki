@@ -1,0 +1,20 @@
+#summary Describes how to compile OSX and exe executables
+#labels Phase-Deploy
+
+= OSX =
+
+  * Requires that py2app is installed
+  * Normal SVN checkout
+  * python setup-osx.py py2app
+
+PhotoGrabber.app will now be in the ~/dist folder
+
+= Windows =
+
+  * Requires that py2exe is installed
+  * Requires that NSIS is installed
+  * Normal SVN checkout
+  * python setup-win.py py2exe
+  * makensis setup.nsi
+
+pg.exe will now be in the current directory ~/
