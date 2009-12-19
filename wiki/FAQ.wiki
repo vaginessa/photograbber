@@ -5,9 +5,13 @@
 
 Most likely the people who have uploaded and tagged pictures of you block applications from accessing the information.  Get them to relax their privacy settings or better yet get them to download and use PhotoGrabber!
 
-=== Will this app steal my credit card number and then spam my friends??? ===
+=== Will this app steal my credit card number??? ===
 
-No. Check the sauce code if you would like to verify.
+No.  Check the sauce code if you would like to verify.
+
+=== Will this app spam my friends??? ===
+
+Only if you want it to.
 
 === Why can people download pictures of me? ===
 
