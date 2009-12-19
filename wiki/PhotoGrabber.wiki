@@ -1,1 +1,13 @@
-#summary That's this application...
+#summary PhotoGrabber Changelog
+
+=== Revision ? ===
+  * 25 Dec 2009
+  * [ FIX ] Issue 5: Exception thrown in download step on Ubuntu 9.04
+  * [ FIX ] Issue 4: Program hang on no available pictures
+  * [ FEATURE ] Now have the ability to download friends' pictures
+  * Updated button graphics
+  * Now given the opportunity to post a story to your wall
+
+=== Revision 7 ===
+  * 12 Oct 2009
+  * Initial Release
