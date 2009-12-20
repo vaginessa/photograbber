@@ -4,17 +4,20 @@ from threading import Thread
 
 class FBDownloader(Thread):
 
-    def __init__ (self, photos_path, facebook, update_callback, error_callback):
+    def __init__ (self, photos_path, uid, facebook, update_callback, error_callback):
         Thread.__init__(self)
         self.photos_path = photos_path
+        self.uid = uid
         self.facebook = facebook
         self.update = update_callback
         self.error = error_callback
 
     def run(self):
+        index = 0
+        total = 0
         try:
             # photos = self.facebook.photos.get(self.facebook.uid)
-            photos = self.facebook.fql.query("SELECT pid, aid, src_big FROM photo WHERE pid IN (SELECT pid FROM photo_tag WHERE subject=" + str(self.facebook.uid) + ")")
+            photos = self.facebook.fql.query("SELECT pid, aid, src_big FROM photo WHERE pid IN (SELECT pid FROM photo_tag WHERE subject=" + str(self.uid) + ")")
 
             # some helpful variables
             dirName = self.photos_path + '/'
@@ -43,3 +46,5 @@ class FBDownloader(Thread):
 
         except Exception, e:
             self.error(e)
+        finally:
+            self.update(index,total)

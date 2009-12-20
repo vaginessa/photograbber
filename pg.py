@@ -5,6 +5,7 @@ from facebook import Facebook
 import tkDirectoryChooser
 import downloader
 import sys
+import pdb
 
 class Application(Frame):
     def __init__(self, master=None):
@@ -25,31 +26,42 @@ class Application(Frame):
         filemenu.add_command(label="Quit", command=self.quit)
 
         # select folder
-        imga = PhotoImage(file="img/1.ppm")
-        self.bFolder = Button(self, image=imga, command=self.opendir)
-        self.bFolder.image = imga
+        imgfolder = PhotoImage(file="img/folder.ppm")
+        self.bFolder = Button(self, image=imgfolder, command=self.opendir)
+        self.bFolder.image = imgfolder
         self.bFolder.pack()
 
         # display selected folder
         self.lFolder = Label(self)
 
         # login button
-        imgb = PhotoImage(file="img/2.ppm")
-        self.bLogin = Button(self, image=imgb, command=self.fblogin)
-        self.bLogin.image = imgb
+        imglogin = PhotoImage(file="img/login.ppm")
+        self.bLogin = Button(self, image=imglogin, command=self.fblogin)
+        self.bLogin.image = imglogin
+
+        # creep button & list
+        imgcreep = PhotoImage(file="img/creepon.ppm")
+        self.bCreep = Button(self, image=imgcreep, command=self.creep)
+        self.bCreep.image = imgcreep
+        self.pFrame = Frame(self)
+        self.sb = Scrollbar(self.pFrame, orient=VERTICAL)
+        self.lbPeople = Listbox(self.pFrame, yscrollcommand=self.sb.set, selectmode=SINGLE)
+        self.sb.config(command=self.lbPeople.yview)
+        self.sb.pack(side=RIGHT, fill=Y)
+        self.lbPeople.pack(side=RIGHT, fill=BOTH, expand=1)
 
         # download button
-        imgc = PhotoImage(file="img/3.ppm")
-        self.bDownload = Button(self, image=imgc, command=self.download)
-        self.bDownload.image = imgc
+        imgdownload = PhotoImage(file="img/download.ppm")
+        self.bDownload = Button(self, image=imgdownload, command=self.download)
+        self.bDownload.image = imgdownload
 
         # display download status
         self.lDownload = Label(self)
 
         # quit button
-        imgd = PhotoImage(file="img/4.ppm")
-        self.bQuit = Button(self, image=imgd, command=self.quit)
-        self.bQuit.image = imgd
+        imgquit = PhotoImage(file="img/quit.ppm")
+        self.bQuit = Button(self, image=imgquit, command=self.do_quit)
+        self.bQuit.image = imgquit
 
 
     # display about information
@@ -83,23 +95,53 @@ class Application(Frame):
 
         #show download button
         self.bLogin["state"]=DISABLED
-        self.bDownload.pack()
+        self.bCreep.pack(fill=X)
 
-    # download button event
-    def download(self):
-        self.bDownload["state"]=DISABLED
-        self.bDownload.pack()
-
+    # choose who to creep on
+    def creep(self):
         try:
             self.facebook.auth.getSession()
+            # self.people = self.facebook.fql.query("SELECT uid, name FROM user WHERE is_app_user = 1 AND uid IN (SELECT uid2 FROM friend WHERE uid1 = " + str(self.facebook.uid) +  ")")
+            self.people = self.facebook.fql.query("SELECT uid, name FROM user WHERE uid IN (SELECT uid2 FROM friend WHERE uid1 = " + str(self.facebook.uid) +  ")")
+
+            me = dict(uid=self.facebook.uid,name="Myself")
+            self.people.sort()
+
+            for person in self.people :
+                name = person['name']
+                self.lbPeople.insert(END, name)
+
+            self.lbPeople.insert(0, "Myself")
+            self.people.insert(0,me)
+
+            self.pFrame.pack(fill=X)
+
         except Exception, e:
             self.error(e)
 
+        self.bCreep["state"]=DISABLED
+        self.bDownload.pack()
+
+
+    # download button event
+    def download(self):
+        self.lbPeople["state"]=DISABLED
+
+        item = self.lbPeople.curselection()
+        if len(item) == 1:
+            uid = self.people[int(item[0])]['uid']
+            self.dl_name = self.people[int(item[0])]['name']
+        else:
+            uid = self.facebook.uid
+
+        #print uid
+
         # download
-        dl = downloader.FBDownloader(self.directory, self.facebook,
+        dl = downloader.FBDownloader(self.directory, uid, self.facebook,
                 self.update_status, self.error)
         dl.start()
 
+        self.bDownload["state"] = DISABLED
         self.lDownload["text"] = "Beginning Download..."
         self.lDownload.pack()
 
@@ -110,12 +152,29 @@ class Application(Frame):
 
         if index==total:
             self.bQuit.pack()
+            self.dl_total = str(total)
 
     # oops an error happened!
     def error(self, e):
         showinfo("OH NOES ERROR!", "There was a problem, please try again!\n\n"
                 + str(e))
         self.quit()
+
+    def do_quit(self):
+        self.bQuit["state"] = DISABLED
+        try:
+            if askokcancel("Quit", "Would you like to post this story to your wall?"):
+                self.facebook.request_extended_permission("publish_stream")
+                my_message = "(Your Name) downloaded " + self.dl_total + " pictures of " + self.dl_name + " with PhotoGrabber!"
+                if askokcancel("Quit", "Pressing OK will post the following story to your wall... This might be both hilarious and embarassing for you...\n\n \"" + my_message + "\"\n\nPressing Cancel will post nothing."):
+                    self.facebook.stream.publish(
+                            message = "downloaded " + self.dl_total +
+                                        " pictures of " + self.dl_name +
+                                        " with PhotoGrabber!",
+                            attachment = '{"name":"PhotoGrabber","href":"http://www.facebook.com/apps/application.php?id=139730900025","description":"This app lets you download pictures from Facebook."}')
+            self.quit()
+        except Exception, e:
+            self.error(e)
 
 app = Application()
 app.master.title("PhotoGrabber")
