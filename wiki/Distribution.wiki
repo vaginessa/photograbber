@@ -18,3 +18,5 @@ PhotoGrabber.app will now be in the ~/dist folder
   * makensis setup.nsi
 
 pg.exe will now be in the current directory ~/
+
+*NOTE:* The img directory must be in the same directory as pg.exe
