@@ -7,5 +7,9 @@
   * Updated button graphics
   * Added option to post a story to your wall
 
+[http://photograbber.googlecode.com/files/pg-r20.png]
+
 === Revision 7: 12 Oct 2009 ===
   * Initial Release
+
+[http://photograbber.googlecode.com/files/pg.png]
