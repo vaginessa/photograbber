@@ -1,5 +1,11 @@
 #summary PhotoGrabber Changelog
 
+=== Revision 27: 20 Dec 2009 ===
+  * *FIX* - Issue 6: Crash when selecting nothing from the "creep" list
+  * Updated UI for clarity
+
+[http://photograbber.googlecode.com/files/pg-r27.png]
+
 === Revision 23: 19 Dec 2009 ===
   * *FIX* - Issue 5: Exception thrown in download step on Ubuntu 9.04
   * *FIX* - Issue 4: Program hang on no available pictures
