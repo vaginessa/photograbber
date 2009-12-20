@@ -41,4 +41,4 @@ class Chooser(Dialog):
 def askdirectory(**options):
     "Ask for a directory name"
 
-    return apply(Chooser, (), options).show()
+    return str(apply(Chooser, (), options).show())
