@@ -5,7 +5,6 @@ from facebook import Facebook
 import tkDirectoryChooser
 import downloader
 import sys
-import pdb
 
 class Application(Frame):
     def __init__(self, master=None):
@@ -25,21 +24,13 @@ class Application(Frame):
         filemenu.add_command(label="About", command=self.aboutmsg)
         filemenu.add_command(label="Quit", command=self.quit)
 
-        # select folder
-        imgfolder = PhotoImage(file="img/folder.ppm")
-        self.bFolder = Button(self, image=imgfolder, command=self.opendir)
-        self.bFolder.image = imgfolder
-        self.bFolder.pack()
-
-        # display selected folder
-        self.lFolder = Label(self)
-
         # login button
         imglogin = PhotoImage(file="img/login.ppm")
         self.bLogin = Button(self, image=imglogin, command=self.fblogin)
         self.bLogin.image = imglogin
+        self.bLogin.pack()
 
-        # creep button & list
+        # logged in button & list
         imgcreep = PhotoImage(file="img/creepon.ppm")
         self.bCreep = Button(self, image=imgcreep, command=self.creep)
         self.bCreep.image = imgcreep
@@ -71,18 +62,6 @@ class Application(Frame):
             + "Facebook API:\ngithub.com/sciyoshi/pyfacebook\n\n"
             + "Icons:\neveraldo.com/crystal")
 
-    # destination button event
-    def opendir(self):
-        # ask for a directory
-        self.directory = tkDirectoryChooser.askdirectory()
-
-        # show the fb login button
-        if self.directory != "":
-            self.bFolder["state"]=DISABLED
-            self.lFolder["text"]=self.directory
-            self.lFolder.pack(fill=X)
-            self.bLogin.pack()
-
     # login button event
     def fblogin(self):
         #api_key and secret_key
@@ -95,13 +74,13 @@ class Application(Frame):
 
         #show download button
         self.bLogin["state"]=DISABLED
+        self.bLogin.pack_forget()
         self.bCreep.pack(fill=X)
 
     # choose who to creep on
     def creep(self):
         try:
             self.facebook.auth.getSession()
-            # self.people = self.facebook.fql.query("SELECT uid, name FROM user WHERE is_app_user = 1 AND uid IN (SELECT uid2 FROM friend WHERE uid1 = " + str(self.facebook.uid) +  ")")
             self.people = self.facebook.fql.query("SELECT uid, name FROM user WHERE uid IN (SELECT uid2 FROM friend WHERE uid1 = " + str(self.facebook.uid) +  ")")
 
             me = dict(uid=self.facebook.uid,name="Myself")
@@ -125,25 +104,30 @@ class Application(Frame):
 
     # download button event
     def download(self):
-        self.lbPeople["state"]=DISABLED
+        # ask for a directory
+        self.directory = tkDirectoryChooser.askdirectory()
 
-        item = self.lbPeople.curselection()
-        if len(item) == 1:
-            uid = self.people[int(item[0])]['uid']
-            self.dl_name = self.people[int(item[0])]['name']
-        else:
-            uid = self.facebook.uid
+        # show the fb login button
+        if self.directory != "":
+            self.lbPeople["state"]=DISABLED
 
-        #print uid
+            # select person from listbox
+            item = self.lbPeople.curselection()
+            if len(item) == 1:
+                uid = self.people[int(item[0])]['uid']
+                self.dl_name = self.people[int(item[0])]['name']
+            else:
+                uid = self.facebook.uid
+                self.dl_name = "Myself"
 
-        # download
-        dl = downloader.FBDownloader(self.directory, uid, self.facebook,
-                self.update_status, self.error)
-        dl.start()
+            # download
+            dl = downloader.FBDownloader(self.directory, uid, self.facebook,
+                    self.update_status, self.error)
+            dl.start()
 
-        self.bDownload["state"] = DISABLED
-        self.lDownload["text"] = "Beginning Download..."
-        self.lDownload.pack()
+            self.bDownload["state"] = DISABLED
+            self.lDownload["text"] = "Beginning Download..."
+            self.lDownload.pack()
 
     # update download status function
     def update_status(self, index, total):
@@ -160,13 +144,16 @@ class Application(Frame):
                 + str(e))
         self.quit()
 
+    # quit button event
     def do_quit(self):
         self.bQuit["state"] = DISABLED
+        my_message = ( "(Your Name) downloaded " + self.dl_total +
+                       " pictures of " + self.dl_name + " with PhotoGrabber!" )
         try:
-            if askokcancel("Quit", "Would you like to post this story to your wall?"):
+            if askokcancel("Quit", "Would you like to post the following story to your wall... This might be both hilarious and embarassing for you...\n\n \"" + my_message + "\""):
                 self.facebook.request_extended_permission("publish_stream")
-                my_message = "(Your Name) downloaded " + self.dl_total + " pictures of " + self.dl_name + " with PhotoGrabber!"
-                if askokcancel("Quit", "Pressing OK will post the following story to your wall... This might be both hilarious and embarassing for you...\n\n \"" + my_message + "\"\n\nPressing Cancel will post nothing."):
+
+                if askokcancel("Quit", "Press OK to post or CANCEL to quit."):
                     self.facebook.stream.publish(
                             message = "downloaded " + self.dl_total +
                                         " pictures of " + self.dl_name +
