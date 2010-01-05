@@ -21,9 +21,9 @@ Privacy Settings > Profile Information > Photos and Videos of Me
 
 Privacy Settings > Applications and Websites > What your friends can share about you > Photos and videos of me
 
-= Helpful Chart =
+= Helpful Table! =
 
-This chart shows the result of different combinations of settings.
+This table shows the results of different privacy of settings.
 
 || *Profile Settings* || *Application Settings* || *PhotoGrabber Installed {{{*}}}* || *Can I Download?* ||
 || Everyone || Yes || No || Yes ||
