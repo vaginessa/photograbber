@@ -1,7 +1,7 @@
 Windows
 -------
-PhotoGrabber is a stand alone executable file, there is no install/uninstall
-process.  Just extract pg.exe and img to the same directory.
+PhotoGrabber is a stand alone executable file, there is no install
+or uninstall process.  Just extract pg.exe and img to the same directory.
 
 If you try to run pg.exe from within the zip folder you will get a warning:
 
@@ -11,7 +11,7 @@ You should click "Extract all".
 
 OSX
 ---
-Unzip and drag pg.app into your Applications folder.
+Unzip and drag PhotoGrabber.app into your Applications folder.
 
 Errors
 ------
