@@ -1,5 +1,10 @@
 #summary PhotoGrabber Changelog
 
+=== Revision 36: 6 Jan 2010 ===
+  * *FIX* - Issue 7: missing dll files on Windows
+  * *FIX* - Issue 8: wrong python version on OSX
+  * Updated distribution to include instructions and proper license
+
 === Revision 27: 20 Dec 2009 ===
   * *FIX* - Issue 6: Crash when selecting nothing from the "creep" list
   * Updated UI for clarity
