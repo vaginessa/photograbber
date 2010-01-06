@@ -22,3 +22,7 @@ PhotoGrabber.app will now be in the ~/dist folder
 pg.exe will now be in the current directory ~/
 
 *NOTE:* The img directory must be in the same directory as pg.exe
+
+= BOTH =
+
+  * Be sure to include INSTALL.txt and LICENSE.txt in the distributed zip archive
