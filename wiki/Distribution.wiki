@@ -16,6 +16,7 @@ PhotoGrabber.app will now be in the ~/dist folder
   * Requires that NSIS is installed
   * Normal SVN checkout
   * python setup-win.py py2exe
+  * Copy Microsoft.VC90.CRT.manifest and msvcr90.dll into the dist/ folder (available from Program Files/Microsoft Visual Studio 9.0/VC/redist/x86)
   * makensis setup.nsi
 
 pg.exe will now be in the current directory ~/
