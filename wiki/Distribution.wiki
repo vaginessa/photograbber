@@ -3,6 +3,7 @@
 
 = OSX =
 
+  * See Issue 8, be sure to run MacPython so that the build will include a universal build of python
   * Requires that py2app is installed
   * Normal SVN checkout
   * python setup-osx.py py2app
