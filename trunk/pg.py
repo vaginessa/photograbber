@@ -104,6 +104,8 @@ class Application(Frame):
 
     # download button event
     def download(self):
+        # get listbox selection before directory prompt
+        item = self.lbPeople.curselection()
         # ask for a directory
         self.directory = tkDirectoryChooser.askdirectory()
 
@@ -111,8 +113,7 @@ class Application(Frame):
         if self.directory != "":
             self.lbPeople["state"]=DISABLED
 
-            # select person from listbox
-            item = self.lbPeople.curselection()
+            # check listbox selection
             if len(item) == 1:
                 uid = self.people[int(item[0])]['uid']
                 self.dl_name = self.people[int(item[0])]['name']
