@@ -17,13 +17,13 @@ def retry_function(max_retries, function, *args, **kw):
                 raise
 
 class FBDownloader(Thread):
-    REPLACE_RE = re.compile(r'\*|:|<|>|\?|\\|/|\|,| ')
+    REPLACE_RE = re.compile(r'\*|"|\'|:|<|>|\?|\\|/|\|,| ')
     CAPTION = -1
     DESCRIPTION = -2
     LOCATION = -3
 
     def __init__ (self, photos_path, uid, friends, full_albums, user_albums,
-                  extras, facebook, update_callback, error_callback):
+                  extras, facebook, update_callback, error_callback, force_exit_callback):
         Thread.__init__(self)
         self.photos_path = photos_path
         self.uid = uid
@@ -36,6 +36,7 @@ class FBDownloader(Thread):
         # callback functions
         self.update = update_callback
         self.error = error_callback
+        self.force_exit = force_exit_callback
 
         self._thread_terminated = False
         self.index = self.total = 0
@@ -270,5 +271,6 @@ class FBDownloader(Thread):
             self.exit_if_terminated()
             print 'DL caught exception', e
             self.error(e)
-            sys.exit(1)
+            self.force_exit() # kill GUI
+            sys.exit(1) # kill thread
         self.update(self.index,self.total)
