@@ -166,7 +166,8 @@ class Application(Frame):
                                               self.full_albums.get(), self.user_albums.get(), self.extras.get(),
                                               self.facebook,
                                               self.update_status,
-                                              self.error)
+                                              self.error,
+                                              self.remote_exit)
             self.dl.start()
 
             self.bDownload["state"] = DISABLED
