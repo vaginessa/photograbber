@@ -50,21 +50,25 @@ class Application(Frame):
                                 selectmode=SINGLE)
         self.sb.config(command=self.lbPeople.yview)
         # check boxes
-        self.default_cb = Checkbutton(self.pFrame, text="All tagged photos of the user")
+        self.default_cb = Checkbutton(self.pFrame,
+                                      text="All tagged photos of the user")
         self.default_cb.select()
         self.default_cb["state"]=DISABLED
         self.default_cb.pack(fill=X)
         self.full_albums = BooleanVar()
-        self.full_cb = Checkbutton(self.pFrame, text="Entire album if it contains a tagged photo",
-                                var=self.full_albums)
+        self.full_cb = Checkbutton(self.pFrame,
+                             text="Entire album if it contains a tagged photo",
+                             var=self.full_albums)
         self.full_cb.pack(fill=X)
         self.user_albums = BooleanVar()
-        self.user_cb = Checkbutton(self.pFrame, text="Albums uploaded by the user",
-                                var=self.user_albums)
+        self.user_cb = Checkbutton(self.pFrame,
+                                   text="Albums uploaded by the user",
+                                   var=self.user_albums)
         self.user_cb.pack(fill=X)
         self.extras = BooleanVar()
-        self.extras_cb = Checkbutton(self.pFrame, text="Comments and tagging information",
-                                var=self.extras)
+        self.extras_cb = Checkbutton(self.pFrame,
+                                     text="Comments and tagging information",
+                                     var=self.extras)
         self.extras_cb.pack(fill=X)
         self.sb.pack(side=RIGHT, fill=Y)
         self.lbPeople.pack(side=RIGHT, fill=BOTH, expand=1)
@@ -163,7 +167,9 @@ class Application(Frame):
 
             # download
             self.dl = downloader.FBDownloader(self.directory, uid, friends,
-                                              self.full_albums.get(), self.user_albums.get(), self.extras.get(),
+                                              self.full_albums.get(),
+                                              self.user_albums.get(),
+                                              self.extras.get(),
                                               self.facebook,
                                               self.update_status,
                                               self.error,
@@ -171,7 +177,8 @@ class Application(Frame):
             self.dl.start()
 
             self.bDownload["state"] = DISABLED
-            self.lDownload["text"] = "Collecting photo list... (this may take a while)"
+            self.lDownload["text"] = ''.join(["Collecting photo list... ",
+                                              "(this may take a while)"])
             self.lDownload.pack()
 
     # update download status function - callback from thread
@@ -199,6 +206,7 @@ class Application(Frame):
 
     # handle requeest to exit - callback from thread
     def remote_exit(self):
+        print "remote exit called!"
         self.quit() # destroy widgets
 
     # quit button event

@@ -9,7 +9,7 @@ def retry_function(max_retries, function, *args, **kw):
             return function(*args, **kw)
         except Exception, e:
             if retries:
-                sys.stderr.write('retrying function: %d' % retries)
+                sys.stderr.write('retrying function: %d\n' % retries)
                 retries -= 1
                 # sleep longer and longer between retries
                 time.sleep((max_retries-retries) * 2)
@@ -22,8 +22,9 @@ class FBDownloader(Thread):
     DESCRIPTION = -2
     LOCATION = -3
 
-    def __init__ (self, photos_path, uid, friends, full_albums, user_albums,
-                  extras, facebook, update_callback, error_callback, force_exit_callback):
+    def __init__ (self, photos_path, uid, friends,
+                        full_albums, user_albums, extras, facebook,
+                        update_callback, error_callback, force_exit_callback):
         Thread.__init__(self)
         self.photos_path = photos_path
         self.uid = uid
@@ -45,6 +46,7 @@ class FBDownloader(Thread):
     # terminate the thread if need be
     def exit_if_terminated(self):
         if self._thread_terminated:
+            print "terminated thread"
             sys.exit() # raise SystemExit exception to terminate run()
 
     # queries fail a lot, lets retry them too
@@ -259,7 +261,8 @@ class FBDownloader(Thread):
         try:
             self.get_albums()
             self.get_pictures()
-            self.total = sum(len(album['photos']) for album in self.albums.values())
+            self.total = sum(len(album['photos'])
+                             for album in self.albums.values())
 
             # Create Download Directory
             if not os.path.isdir(self.photos_path):
