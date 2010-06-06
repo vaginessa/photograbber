@@ -163,14 +163,14 @@ class Application(Frame):
 
             # download
             self.dl = downloader.FBDownloader(self.directory, uid, friends,
-                                              self.full_albums, self.user_albums, self.extras,
+                                              self.full_albums.get(), self.user_albums.get(), self.extras.get(),
                                               self.facebook,
                                               self.update_status,
                                               self.error)
             self.dl.start()
 
             self.bDownload["state"] = DISABLED
-            self.lDownload["text"] = "Beginning Download..."
+            self.lDownload["text"] = "Collecting photo list... (this may take a while)"
             self.lDownload.pack()
 
     # update download status function - callback from thread
@@ -213,12 +213,14 @@ class Application(Frame):
             if self.debug:
                 sys.stderr.write('Waiting for download thread to terminate\n')
             while self.dl.isAlive():
-                sys.stderr.write('.')
-                sys.stderr.flush()
+                if self.debug:
+                    sys.stderr.write('.')
+                    sys.stderr.flush()
                 self.dl.join(1)
             self.dl = None
-            sys.stderr.write('\n')
-            sys.stderr.flush()
+            if self.debug:
+                sys.stderr.write('\n')
+                sys.stderr.flush()
         self.quit()
 
 def main(debug=False):
