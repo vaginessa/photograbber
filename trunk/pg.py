@@ -4,14 +4,22 @@ from tkMessageBox import *
 from facebook import Facebook
 import tkDirectoryChooser
 import downloader
-import sys
+import sys, traceback
 
 class Application(Frame):
-    def __init__(self, master=None):
+    def __init__(self, master=None, debug=False):
         Frame.__init__(self, master)
+        self.master.title("PhotoGrabber")
+        self.master.resizable(width=FALSE, height=FALSE)
+        self.master.protocol("WM_DELETE_WINDOW", self.quit_wrapper) #press quit
         self.pack(fill=BOTH, expand=1)
+        # fix icon on windows
         if sys.platform == 'win32':
             self.master.iconbitmap(default='img/pg.ico')
+        # print debug info
+        self.debug = debug
+        # downloading thread
+        self.dl = None
         self.createWidgets()
 
     def createWidgets(self):
@@ -30,14 +38,34 @@ class Application(Frame):
         self.bLogin.image = imglogin
         self.bLogin.pack()
 
-        # logged in button & list
+        # logged in button
         imgcreep = PhotoImage(file="img/creepon.ppm")
         self.bCreep = Button(self, image=imgcreep, command=self.creep)
         self.bCreep.image = imgcreep
+
+        # list of friends
         self.pFrame = Frame(self)
         self.sb = Scrollbar(self.pFrame, orient=VERTICAL)
-        self.lbPeople = Listbox(self.pFrame, yscrollcommand=self.sb.set, selectmode=SINGLE)
+        self.lbPeople = Listbox(self.pFrame, yscrollcommand=self.sb.set,
+                                selectmode=SINGLE)
         self.sb.config(command=self.lbPeople.yview)
+        # check boxes
+        self.default_cb = Checkbutton(self.pFrame, text="All tagged photos of the user")
+        self.default_cb.select()
+        self.default_cb["state"]=DISABLED
+        self.default_cb.pack(fill=X)
+        self.full_albums = BooleanVar()
+        self.full_cb = Checkbutton(self.pFrame, text="Entire album if it contains a tagged photo",
+                                var=self.full_albums)
+        self.full_cb.pack(fill=X)
+        self.user_albums = BooleanVar()
+        self.user_cb = Checkbutton(self.pFrame, text="Albums uploaded by the user",
+                                var=self.user_albums)
+        self.user_cb.pack(fill=X)
+        self.extras = BooleanVar()
+        self.extras_cb = Checkbutton(self.pFrame, text="Comments and tagging information",
+                                var=self.extras)
+        self.extras_cb.pack(fill=X)
         self.sb.pack(side=RIGHT, fill=Y)
         self.lbPeople.pack(side=RIGHT, fill=BOTH, expand=1)
 
@@ -59,40 +87,48 @@ class Application(Frame):
     def aboutmsg(self):
         showinfo("About PhotoGrabber", "Developed by Tommy Murphy:\n"
             + "eat.ourbunny.com\n\n"
+            + "Contributions from Bryce Boe:\n"
+            + "bryceboe.com\n\n"
             + "Facebook API:\ngithub.com/sciyoshi/pyfacebook\n\n"
             + "Icons:\neveraldo.com/crystal")
 
     # login button event
     def fblogin(self):
-        #api_key and secret_key
+        # api_key and secret_key
         try:
-            self.facebook = Facebook('227fe70470173eca69e4b38b6518fbfd', '6831060776f620cc2588fd053250cabb')
+            self.facebook = Facebook('227fe70470173eca69e4b38b6518fbfd',
+                                     '6831060776f620cc2588fd053250cabb')
             self.facebook.auth.createToken()
             self.facebook.login()
         except Exception, e:
             self.error(e)
 
-        #show download button
+        # hide login button
         self.bLogin["state"]=DISABLED
         self.bLogin.pack_forget()
+        # select a user button
         self.bCreep.pack(fill=X)
 
-    # choose who to creep on
+    # load the list of friends
     def creep(self):
         try:
             self.facebook.auth.getSession()
-            self.people = self.facebook.fql.query("SELECT uid, name FROM user WHERE uid IN (SELECT uid2 FROM friend WHERE uid1 = " + str(self.facebook.uid) +  ")")
 
-            me = dict(uid=self.facebook.uid,name="Myself")
+            q = ''.join(['SELECT uid, name FROM user WHERE uid IN ',
+                         '(SELECT uid2 FROM friend WHERE uid1 = %(name)s) ',
+                         'OR uid=%(name)s']) % {"name":self.facebook.uid}
+            self.people = self.facebook.fql.query(q)
             self.people.sort()
 
             for person in self.people :
                 name = person['name']
                 self.lbPeople.insert(END, name)
 
+            me = dict(uid=self.facebook.uid,name="Myself")
             self.lbPeople.insert(0, "Myself")
             self.people.insert(0,me)
 
+            # show the list of people
             self.pFrame.pack(fill=X)
 
         except Exception, e:
@@ -109,62 +145,89 @@ class Application(Frame):
         # ask for a directory
         self.directory = tkDirectoryChooser.askdirectory()
 
-        # show the fb login button
+        # show the fb login butto
         if self.directory != "":
             self.lbPeople["state"]=DISABLED
+            self.full_cb["state"]=DISABLED
+            self.user_cb["state"]=DISABLED
+            self.extras_cb["state"]=DISABLED
 
             # check listbox selection
             if len(item) == 1:
                 uid = self.people[int(item[0])]['uid']
-                self.dl_name = self.people[int(item[0])]['name']
             else:
                 uid = self.facebook.uid
-                self.dl_name = "Myself"
+
+            # make dictonary of friends
+            friends = dict((x['uid'], x['name']) for x in self.people)
 
             # download
-            dl = downloader.FBDownloader(self.directory, uid, self.facebook,
-                    self.update_status, self.error)
-            dl.start()
+            self.dl = downloader.FBDownloader(self.directory, uid, friends,
+                                              self.full_albums, self.user_albums, self.extras,
+                                              self.facebook,
+                                              self.update_status,
+                                              self.error)
+            self.dl.start()
 
             self.bDownload["state"] = DISABLED
             self.lDownload["text"] = "Beginning Download..."
             self.lDownload.pack()
 
-    # update download status function
+    # update download status function - callback from thread
     def update_status(self, index, total):
-        self.lDownload["text"] = str(index) + " of " + str(total)
+        self.lDownload["text"] = '%s of %s' % (index, total)
         self.lDownload.pack()
 
         if index==total:
             self.bQuit.pack()
-            self.dl_total = str(total)
 
-    # oops an error happened!
-    def error(self, e):
+    # oops an error happened! - callback from thread
+    def error(self, e, pgExit=True):
+        if self.debug:
+            sys.stderr.write(str(e) + "\n")
+            traceback.print_exc()
+
+        # some errors dont require GUI intervention
+        if not pgExit:
+            return
+
+        # others do
         showinfo("OH NOES ERROR!", "There was a problem, please try again!\n\n"
                 + str(e))
         self.quit()
 
+    # handle requeest to exit - callback from thread
+    def remote_exit(self):
+        self.quit() # destroy widgets
+
     # quit button event
     def do_quit(self):
         self.bQuit["state"] = DISABLED
-        my_message = ( "(Your Name) downloaded " + self.dl_total +
-                       " pictures of " + self.dl_name + " with PhotoGrabber!" )
-        try:
-            if askokcancel("Quit", "Would you like to post the following story to your wall... This might be both hilarious and embarassing for you...\n\n \"" + my_message + "\""):
-                self.facebook.request_extended_permission("publish_stream")
+        self.quit()
 
-                if askokcancel("Quit", "Press OK to post or CANCEL to quit."):
-                    self.facebook.stream.publish(
-                            message = "downloaded " + self.dl_total +
-                                        " pictures of " + self.dl_name +
-                                        " with PhotoGrabber!",
-                            attachment = '{"name":"PhotoGrabber","href":"http://www.facebook.com/apps/application.php?id=139730900025","description":"This app lets you download pictures from Facebook."}')
-            self.quit()
-        except Exception, e:
-            self.error(e)
+    # window manager quit - callback from UI
+    def quit_wrapper(self):
+        #if self.dl and askokcancel('Quit','Do you really want to quit?'):
+        if self.dl:
+            self.dl._thread_terminated = True
+            if self.debug:
+                sys.stderr.write('Waiting for download thread to terminate\n')
+            while self.dl.isAlive():
+                sys.stderr.write('.')
+                sys.stderr.flush()
+                self.dl.join(1)
+            self.dl = None
+            sys.stderr.write('\n')
+            sys.stderr.flush()
+        self.quit()
 
-app = Application()
-app.master.title("PhotoGrabber")
-app.master.resizable(width=FALSE, height=FALSE)
-app.mainloop()
+def main(debug=False):
+    app = Application(debug=debug)
+    try:
+        app.mainloop()
+    except KeyboardInterrupt:
+        if app.dl: app.dl._thread_terminated = True
+    if app.dl: app.dl.join()
+
+if __name__ == '__main__':
+    main(debug = len(sys.argv) > 1)
