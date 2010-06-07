@@ -1,20 +1,5 @@
-from facebook import Facebook
-import os, re, sys, urllib, urllib2, time
+import os, re, sys, urllib2, time
 from threading import Thread
-
-def retry_function(max_retries, function, *args, **kw):
-    retries = max_retries
-    while True:
-        try:
-            return function(*args, **kw)
-        except Exception, e:
-            if retries:
-                sys.stderr.write('retrying function: %d\n' % retries)
-                retries -= 1
-                # sleep longer and longer between retries
-                time.sleep((max_retries-retries) * 2)
-            else:
-                raise
 
 class FBDownloader(Thread):
     REPLACE_RE = re.compile(r'\*|"|\'|:|<|>|\?|\\|/|\|,| ')
@@ -43,31 +28,38 @@ class FBDownloader(Thread):
         self.index = self.total = 0
         self.albums = {}        # hold all pic data
 
+    def retry_function(self, max_retries, function, *args, **kw):
+        retries = 0
+        while True:
+            self.exit_if_terminated()
+            try:
+                return function(*args, **kw)
+            except Exception, e:
+                if retries < max_retries:
+                    self.error('retrying function: %d\n' % retries, False)
+                    retries += 1
+                    # sleep longer and longer between retries
+                    time.sleep(retries * 2)
+                else:
+                    raise
+
     # terminate the thread if need be
     def exit_if_terminated(self):
         if self._thread_terminated:
-            print "terminated thread"
             sys.exit() # raise SystemExit exception to terminate run()
 
     # queries fail a lot, lets retry them too
     def query_wrapper(self, q):
-        retries = max = 10
-        while True:
-            self.exit_if_terminated()
-            try:
-                return self.facebook.fql.query(q)
-            except Exception, e:
-                if retries:
-                    retries -= 1
-                    self.error("error: %s\n\n%s\n" % (e,q), False)
-                    # sleep longer and longer between retries
-                    time.sleep((max-retries) * 2)
-                else:
-                    raise
+        try:
+            return self.retry_function(10, self.facebook.fql.query, q)
+        except Exception, e:
+            # maybe do something different with error...
+            self.error(e)
 
     # return a persons name
     def friend_name(self, uid):
         if uid == None:
+            # this should never happen... but it did once
             return 'Unknown'
         if uid not in self.friends:
             q = 'SELECT name FROM profile WHERE id=%s'
@@ -81,9 +73,6 @@ class FBDownloader(Thread):
     # functions to write extra info
 
     def write_comments(self, filename, comments):
-        # skip if the file already exists or we dont want the extra info
-        if os.path.isfile(filename) or not self.extras: return
-
         fp = open(filename, 'wb')
         for comment in sorted(comments, key=lambda x:x['time']):
             if comment['fromid'] == self.CAPTION:
@@ -101,9 +90,6 @@ class FBDownloader(Thread):
         os.utime(filename, (int(comment['time']),) * 2)
 
     def write_tags(self, filename, tags, file_time):
-        # skip if the file already exists or we dont want the extra info
-        if os.path.isfile(filename) or not self.extras: return
-
         fp = open(filename, 'wb')
         for tag in sorted(tags, key=lambda x:(float(x['xcoord']),
                                               float(x['ycoord']))):
@@ -189,22 +175,25 @@ class FBDownloader(Thread):
             album_comments.append({'fromid':self.LOCATION, 'time':1,
                                    'text':album['location']})
 
-        # load all comments for album and its photos
-        for item in self.query_wrapper(q % ','.join(oids)):
-            oid = item['object_id']
-            if oid in o2pid: # photo comment
-                clist = album['photos'][o2pid[oid]].setdefault('comments', [])
-                clist.append(item)
-            else: # album comment
-                album_comments.append(item)
+        # do i want extra info?
+        if self.extras:
+            # load all comments for album and its photos
+            for item in self.query_wrapper(q % ','.join(oids)):
+                oid = item['object_id']
+                if oid in o2pid: # photo comment
+                    clist = album['photos'][o2pid[oid]].setdefault('comments',
+                                                                   [])
+                    clist.append(item)
+                else: # album comment
+                    album_comments.append(item)
 
-        # load tags in each photo
-        q = ''.join(['SELECT pid, text, xcoord, ycoord FROM ',
-                     'photo_tag WHERE pid IN(%s)'])
-        pids = ['"%s"' % x for x in album['photos'].keys()]
-        for item in self.query_wrapper(q % ','.join(pids)):
-            tag_list = album['photos'][item['pid']].setdefault('tags', [])
-            tag_list.append(item)
+            # load tags in each photo
+            q = ''.join(['SELECT pid, text, xcoord, ycoord FROM ',
+                         'photo_tag WHERE pid IN(%s)'])
+            pids = ['"%s"' % x for x in album['photos'].keys()]
+            for item in self.query_wrapper(q % ','.join(pids)):
+                tag_list = album['photos'][item['pid']].setdefault('tags', [])
+                tag_list.append(item)
 
         username = self.friend_name(album['owner'])
         album_folder = self.REPLACE_RE.sub(
@@ -250,7 +239,7 @@ class FBDownloader(Thread):
         try:
             picout = open(filename, 'wb')
             handler = urllib2.Request(photo['src_big'])
-            data = retry_function(10, urllib2.urlopen, handler)
+            data = self.retry_function(10, urllib2.urlopen, handler)
             picout.write(data.read())
             picout.close()
             os.utime(filename, (int(photo['created']),) * 2)
@@ -272,7 +261,7 @@ class FBDownloader(Thread):
                 self.save_album(album)
         except Exception, e:
             self.exit_if_terminated()
-            print 'DL caught exception', e
+            # print 'DL caught exception', e
             self.error(e)
             self.force_exit() # kill GUI
             sys.exit(1) # kill thread

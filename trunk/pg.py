@@ -30,7 +30,7 @@ class Application(Frame):
         filemenu=Menu(mb,tearoff=0)
         mb.add_cascade(label="File", menu=filemenu)
         filemenu.add_command(label="About", command=self.aboutmsg)
-        filemenu.add_command(label="Quit", command=self.quit)
+        filemenu.add_command(label="Quit", command=self.quit_wrapper)
 
         # login button
         imglogin = PhotoImage(file="img/login.ppm")
@@ -149,7 +149,7 @@ class Application(Frame):
         # ask for a directory
         self.directory = tkDirectoryChooser.askdirectory()
 
-        # show the fb login butto
+        # show the fb login button
         if self.directory != "":
             self.lbPeople["state"]=DISABLED
             self.full_cb["state"]=DISABLED
@@ -191,22 +191,20 @@ class Application(Frame):
 
     # oops an error happened! - callback from thread
     def error(self, e, pgExit=True):
-        if self.debug:
-            sys.stderr.write(str(e) + "\n")
-            traceback.print_exc()
-
         # some errors dont require GUI intervention
         if not pgExit:
+            if self.debug:
+                sys.stderr.write('%s\n' %e)
             return
 
         # others do
         showinfo("OH NOES ERROR!", "There was a problem, please try again!\n\n"
                 + str(e))
+        traceback.print_exc()
         self.quit()
 
     # handle requeest to exit - callback from thread
     def remote_exit(self):
-        print "remote exit called!"
         self.quit() # destroy widgets
 
     # quit button event
@@ -216,7 +214,6 @@ class Application(Frame):
 
     # window manager quit - callback from UI
     def quit_wrapper(self):
-        #if self.dl and askokcancel('Quit','Do you really want to quit?'):
         if self.dl:
             self.dl._thread_terminated = True
             if self.debug:
@@ -227,9 +224,7 @@ class Application(Frame):
                     sys.stderr.flush()
                 self.dl.join(1)
             self.dl = None
-            if self.debug:
-                sys.stderr.write('\n')
-                sys.stderr.flush()
+            if self.debug: sys.stderr.write('\n')
         self.quit()
 
 def main(debug=False):
