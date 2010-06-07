@@ -73,7 +73,7 @@ class FBDownloader(Thread):
     # functions to write extra info
 
     def write_comments(self, filename, comments):
-        fp = open(filename, 'wb')
+        fp = open(filename, 'w')
         for comment in sorted(comments, key=lambda x:x['time']):
             if comment['fromid'] == self.CAPTION:
                 fp.write('Photo Caption\n')
@@ -90,7 +90,7 @@ class FBDownloader(Thread):
         os.utime(filename, (int(comment['time']),) * 2)
 
     def write_tags(self, filename, tags, file_time):
-        fp = open(filename, 'wb')
+        fp = open(filename, 'w')
         for tag in sorted(tags, key=lambda x:(float(x['xcoord']),
                                               float(x['ycoord']))):
             fp.write('%9.5f %9.5f %s\n' % (tag['xcoord'], tag['ycoord'],
