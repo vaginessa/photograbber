@@ -3,6 +3,7 @@ from Tkinter import *
 from tkMessageBox import *
 from facebook import Facebook
 import tkDirectoryChooser
+import tkMessageBox
 import downloader
 import sys, traceback
 
@@ -218,6 +219,10 @@ class Application(Frame):
 
     # window manager quit - callback from UI
     def quit_wrapper(self):
+        if tkMessageBox.askyesno(title="Quit During Download?",
+                     message="Are you sure you want to quit during a download?") == 0:
+            return
+        
         if self.dl:
             self.dl._thread_terminated = True
             if self.debug:
