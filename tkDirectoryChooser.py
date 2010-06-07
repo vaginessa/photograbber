@@ -41,4 +41,4 @@ class Chooser(Dialog):
 def askdirectory(**options):
     "Ask for a directory name"
 
-    return str(apply(Chooser, (), options).show())
+    return unicode(apply(Chooser, (), options).show())
