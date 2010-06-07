@@ -55,20 +55,24 @@ class Application(Frame):
         self.default_cb.select()
         self.default_cb["state"]=DISABLED
         self.default_cb.pack(fill=X)
+        
         self.full_albums = BooleanVar()
         self.full_cb = Checkbutton(self.pFrame,
                              text="Entire album if it contains a tagged photo",
                              var=self.full_albums)
-        self.full_cb.pack(fill=X)
+        
         self.user_albums = BooleanVar()
         self.user_cb = Checkbutton(self.pFrame,
                                    text="Albums uploaded by the user",
                                    var=self.user_albums)
-        self.user_cb.pack(fill=X)
+        
         self.extras = BooleanVar()
         self.extras_cb = Checkbutton(self.pFrame,
                                      text="Comments and tagging information",
                                      var=self.extras)
+        
+        self.full_cb.pack(fill=X)
+        self.user_cb.pack(fill=X)
         self.extras_cb.pack(fill=X)
         self.sb.pack(side=RIGHT, fill=Y)
         self.lbPeople.pack(side=RIGHT, fill=BOTH, expand=1)

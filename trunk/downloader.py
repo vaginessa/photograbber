@@ -253,9 +253,9 @@ class FBDownloader(Thread):
             self.total = sum(len(album['photos'])
                              for album in self.albums.values())
 
-            # Create Download Directory
+            # Create Download Directory (recursively)
             if not os.path.isdir(self.photos_path):
-                os.mkdir(self.photos_path)
+                os.makedirs(self.photos_path)
 
             for album in self.albums.values():
                 self.save_album(album)
