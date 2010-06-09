@@ -219,11 +219,10 @@ class Application(Frame):
 
     # window manager quit - callback from UI
     def quit_wrapper(self):
-        if tkMessageBox.askyesno(title="Quit During Download?",
-                     message="Are you sure you want to quit during a download?") == 0:
-            return
-        
         if self.dl:
+            if tkMessageBox.askyesno(title="Quit During Download?",
+                     message="Are you sure you want to quit during a download?") == 0:
+                return
             self.dl._thread_terminated = True
             if self.debug:
                 sys.stderr.write('Waiting for download thread to terminate\n')
