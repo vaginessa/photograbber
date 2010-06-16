@@ -5,10 +5,10 @@ from facebook import Facebook
 import tkDirectoryChooser
 import tkMessageBox
 import downloader
-import sys, traceback
+import sys, traceback, logging
 
 class Application(Frame):
-    def __init__(self, master=None, debug=False):
+    def __init__(self, master=None):
         Frame.__init__(self, master)
         self.master.title("PhotoGrabber")
         self.master.resizable(width=FALSE, height=FALSE)
@@ -17,8 +17,6 @@ class Application(Frame):
         # fix icon on windows
         if sys.platform == 'win32':
             self.master.iconbitmap(default='img/pg.ico')
-        # print debug info
-        self.debug = debug
         # downloading thread
         self.dl = None
         self.createWidgets()
@@ -177,7 +175,6 @@ class Application(Frame):
                                               self.extras.get(),
                                               self.facebook,
                                               self.update_status,
-                                              self.error,
                                               self.remote_exit)
             self.dl.start()
 
@@ -187,25 +184,19 @@ class Application(Frame):
             self.lDownload.pack()
 
     # update download status function - callback from thread
-    def update_status(self, index, total):
+    def update_status(self, index, total, done=False):
         self.lDownload["text"] = '%s of %s' % (index, total)
         self.lDownload.pack()
 
-        if index==total:
+        if done:
+            if self.dl.isAlive(): self.dl.join()
+            self.dl = None
             self.bQuit.pack()
 
     # oops an error happened! - callback from thread
-    def error(self, e, pgExit=True):
-        # some errors dont require GUI intervention
-        if not pgExit:
-            if self.debug:
-                sys.stderr.write('%s\n' %e)
-            return
-
-        # others do
-        showinfo("OH NOES ERROR!", "There was a problem, please try again!\n\n"
-                + str(e))
-        traceback.print_exc()
+    def error(self, e):
+        logging.exception('There was a problem')
+        showinfo("ERROR!", "Non-recoverable error, try again!\n\n %s" % e)
         self.quit()
 
     # handle requeest to exit - callback from thread
@@ -224,19 +215,23 @@ class Application(Frame):
                      message="Are you sure you want to quit during a download?") == 0:
                 return
             self.dl._thread_terminated = True
-            if self.debug:
-                sys.stderr.write('Waiting for download thread to terminate\n')
+            logging.debug('Waiting for download thread to terminate')
             while self.dl.isAlive():
-                if self.debug:
-                    sys.stderr.write('.')
-                    sys.stderr.flush()
+                logging.debug('.')
                 self.dl.join(1)
             self.dl = None
-            if self.debug: sys.stderr.write('\n')
+            logging.debug('Thread terminated')
         self.quit()
+        
+LEVELS = {'debug': logging.DEBUG,
+          'info': logging.INFO,
+          'warning': logging.WARNING,
+          'error': logging.ERROR,
+          'critical': logging.CRITICAL}
 
-def main(debug=False):
-    app = Application(debug=debug)
+def main(level=logging.ERROR):
+    logging.basicConfig(level=level)
+    app = Application()
     try:
         app.mainloop()
     except KeyboardInterrupt:
@@ -244,4 +239,8 @@ def main(debug=False):
     if app.dl: app.dl.join()
 
 if __name__ == '__main__':
-    main(debug = len(sys.argv) > 1)
+    level = logging.ERROR
+    if len(sys.argv) > 1:
+        level_name = sys.argv[1]
+        level = LEVELS.get(level_name, logging.NOTSET)
+    main(level)
