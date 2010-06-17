@@ -54,22 +54,22 @@ class Application(Frame):
         self.default_cb.select()
         self.default_cb["state"]=DISABLED
         self.default_cb.pack(fill=X)
-        
+
         self.full_albums = BooleanVar()
         self.full_cb = Checkbutton(self.pFrame,
                              text="Entire album if it contains a tagged photo",
                              var=self.full_albums)
-        
+
         self.user_albums = BooleanVar()
         self.user_cb = Checkbutton(self.pFrame,
                                    text="Albums uploaded by the user",
                                    var=self.user_albums)
-        
+
         self.extras = BooleanVar()
         self.extras_cb = Checkbutton(self.pFrame,
                                      text="Comments and tagging information",
                                      var=self.extras)
-        
+
         self.full_cb.pack(fill=X)
         self.user_cb.pack(fill=X)
         self.extras_cb.pack(fill=X)
@@ -216,7 +216,7 @@ class Application(Frame):
     def quit_wrapper(self):
         if self.dl:
             if tkMessageBox.askyesno(title="Quit During Download?",
-                     message="Are you sure you want to quit during a download?") == 0:
+                    message="Are you sure you want to quit during a download?") == 0:
                 return
             self.dl._thread_terminated = True
             logging.debug('Waiting for download thread to terminate')
@@ -226,7 +226,7 @@ class Application(Frame):
             self.dl = None
             logging.debug('Thread terminated')
         self.quit()
-        
+
 LEVELS = {'debug': logging.DEBUG,
           'info': logging.INFO,
           'warning': logging.WARNING,

@@ -12,13 +12,13 @@ LOCATION = -3
 
 def get_friends(q_wrap, uid):
     '''returns a list of uids and names of uid's friends'''
-    
+
     q = ''.join(['SELECT uid, name FROM user WHERE uid IN ',
                  '(SELECT uid2 FROM friend WHERE uid1 = %(name)s) ',
                  'OR uid=%(name)s']) % {"name":uid}
     people = q_wrap(q)
     people.sort()
-        
+
     me = dict(uid=uid,name="Myself")
     people.insert(0,me)
     return people
@@ -45,12 +45,12 @@ def get_friend_name(q_wrap, friends, uid):
 
 def get_tagged_albums(q_wrap, uid, albums):
     '''return info from all albums in which the uid was tagged'''
-    
+
     q = ''.join(['SELECT aid, owner, name, modified, description, ',
                  'location, object_id FROM album WHERE aid IN (SELECT ',
                  'aid FROM photo WHERE pid IN (SELECT pid FROM photo_tag ',
                  'WHERE subject="%s"))']) % uid
-    
+
     for item in q_wrap(q):
         item['photos'] = {}
         albums[item['aid']] = item
@@ -91,14 +91,14 @@ def get_user_album_pictures(q_wrap, uid, albums):
     q = ''.join(['SELECT pid, aid, src_big, caption, created, ',
                  'object_id FROM photo WHERE aid IN (SELECT aid FROM ',
                  'album WHERE owner="%s")']) % uid
-    
+
     for photo in q_wrap(q):
         albums[photo['aid']]['photos'][photo['pid']] = photo
 
 
 def get_album_comments(q_wrap, album, friends):
     '''get the comments for a single album (including the pictures)'''
-    
+
     q = ''.join(['SELECT object_id, fromid, time, text FROM comment ',
                  'WHERE object_id in (%s)'])
 
@@ -124,7 +124,7 @@ def get_album_comments(q_wrap, album, friends):
     if album['location']:
         album_comments.append({'fromid':LOCATION, 'time':1,
                                'text':album['location']})
-    
+
     # load all comments for album and its photos
     for item in q_wrap(q % ','.join(oids)):
         oid = item['object_id']
@@ -133,13 +133,13 @@ def get_album_comments(q_wrap, album, friends):
                                                            [])
             # add the friend's name
             item['fromname'] = get_friend_name(q_wrap, friends, item['fromid'])
-            
+
             clist.append(item)
         else: # album comment
             album_comments.append(item)
 
     album['comments'] = album_comments
-    
+
     # load tags in each photo
     q = ''.join(['SELECT pid, text, xcoord, ycoord FROM ',
                  'photo_tag WHERE pid IN(%s)'])
@@ -159,11 +159,11 @@ def save_albums_dict(albums, friends, path):
     '''save the albums and friends dictonaries to json files'''
     try:
         timestamp = time.strftime( "%y-%m-%d_%H-%M-%S")
-        filename = os.path.join(path, 'pg_albums_%s.js' % timestamp)
+        filename = os.path.join(path, 'pg_albums_%s.json' % timestamp)
         db_file=open(filename,"w")
         json.dump(albums, db_file)
         db_file.close()
-        filename = os.path.join(path, 'pg_friends_%s.js' % timestamp)
+        filename = os.path.join(path, 'pg_friends_%s.json' % timestamp)
         db_file=open(filename,"w")
         json.dump(friends, db_file)
         db_file.close()
@@ -174,11 +174,11 @@ def download_pic(photo, filename):
     '''downloads a picture (retries 10 times before failure)'''
     max_retries = 10
     retries = 0
-    
+
     picout = open(filename, 'wb')
     handler = urllib2.Request(photo['src_big'])
     retry = True
-    
+
     while retry:
         try:
             logging.debug('downloading:%s' % photo['src_big'])
