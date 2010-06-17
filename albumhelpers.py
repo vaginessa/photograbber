@@ -2,7 +2,7 @@
 #
 # A series of funcitons to build the albums datastructure
 
-import sys, json, logging, time, os
+import sys, json, logging, time, os, urllib2
 
 CAPTION = -1
 DESCRIPTION = -2
@@ -24,13 +24,22 @@ def get_friends(q_wrap, uid):
     return people
 
 def get_friend(q_wrap, uid):
-    '''Get the name of a specific uid'''
+    '''get the name of a specific uid'''
     q = 'SELECT name FROM profile WHERE id=%s'
     res = q_wrap(q % uid)
     if res:
         return res[0]['name']
     else:
         return 'uid_%s' % uid # could not find real name
+
+def get_friend_name(q_wrap, friends, uid):
+    '''returns a person's name.  Adds the name if it doesn't exist.'''
+    if uid == None:
+        # this should never happen... but it did once
+        return 'Unknown'
+    if uid not in friends:
+        friends[uid] = get_friend(q_wrap, uid)
+    return friends[uid]
 
 # Albums/Pictures
 
@@ -87,7 +96,7 @@ def get_user_album_pictures(q_wrap, uid, albums):
         albums[photo['aid']]['photos'][photo['pid']] = photo
 
 
-def get_album_comments(q_wrap, album):
+def get_album_comments(q_wrap, album, friends):
     '''get the comments for a single album (including the pictures)'''
     
     q = ''.join(['SELECT object_id, fromid, time, text FROM comment ',
@@ -123,7 +132,7 @@ def get_album_comments(q_wrap, album):
             clist = album['photos'][o2pid[oid]].setdefault('comments',
                                                            [])
             # add the friend's name
-            #item['fromname'] = friend_name(item['fromid'])
+            item['fromname'] = get_friend_name(q_wrap, friends, item['fromid'])
             
             clist.append(item)
         else: # album comment
@@ -139,16 +148,56 @@ def get_album_comments(q_wrap, album):
         tag_list = album['photos'][item['pid']].setdefault('tags', [])
         tag_list.append(item)
 
-def get_extra_info(q_wrap, albums):
-    for album in albums.values():
-        get_album_comments(q_wrap, album)
-        for photo in album['photos'].items():
-            
+def add_photo_paths(album):
+    '''set path info in album dictionary'''
+    for photo in album['photos'].items():
+        photo[1]['path'] = os.path.join(album['folder'], '%s.jpg' % photo[0])
 
-def save_albums(albums, path):
-    '''save the album info to a json database'''
-    timestamp = time.strftime( "%y-%m-%d_%H-%M-%S")
-    filename = os.path.join(path, 'photograbber_%s.js' % timestamp)
-    db_file=open(filename,"w")
-    json.dump(albums, db_file)
-    db_file.close()
+# Save commands
+
+def save_albums_dict(albums, friends, path):
+    '''save the albums and friends dictonaries to json files'''
+    try:
+        timestamp = time.strftime( "%y-%m-%d_%H-%M-%S")
+        filename = os.path.join(path, 'pg_albums_%s.js' % timestamp)
+        db_file=open(filename,"w")
+        json.dump(albums, db_file)
+        db_file.close()
+        filename = os.path.join(path, 'pg_friends_%s.js' % timestamp)
+        db_file=open(filename,"w")
+        json.dump(friends, db_file)
+        db_file.close()
+    except Exception, e:
+        logging.exception('Saving JSON dictionaries did not work')
+
+def download_pic(photo, filename):
+    '''downloads a picture (retries 10 times before failure)'''
+    max_retries = 10
+    retries = 0
+    
+    picout = open(filename, 'wb')
+    handler = urllib2.Request(photo['src_big'])
+    retry = True
+    
+    while retry:
+        try:
+            logging.debug('downloading:%s' % photo['src_big'])
+            data = urllib2.urlopen(handler)
+            retry = False
+        except Exception, e:
+            if retries < max_retries:
+                retries += 1
+                logging.debug('retrying download %s' % filename)
+                # sleep longer and longer between retries
+                time.sleep(retries * 2)
+            else:
+                # skip on 404 error: Issue 13
+                logging.exception('Could not download %s' % filename)
+                picout.close()
+                os.remove(filename)
+                return
+
+    picout.write(data.read())
+    picout.close()
+    os.utime(filename, (int(photo['created']),) * 2)
+

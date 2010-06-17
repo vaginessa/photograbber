@@ -151,6 +151,7 @@ class Application(Frame):
         item = self.lbPeople.curselection()
         # ask for a directory
         self.directory = tkDirectoryChooser.askdirectory()
+        logging.info('directory: %s' % self.directory)
 
         # show the fb login button
         if self.directory != "":
@@ -169,6 +170,7 @@ class Application(Frame):
             friends = dict((x['uid'], x['name']) for x in self.people)
 
             # download
+            logging.info('starting FBDownloader thread')
             self.dl = downloader.FBDownloader(self.directory, uid, friends,
                                               self.full_albums.get(),
                                               self.user_albums.get(),
@@ -189,8 +191,7 @@ class Application(Frame):
         self.lDownload.pack()
 
         if done:
-            if self.dl.isAlive(): self.dl.join()
-            self.dl = None
+            logging.info('all done!')
             self.bQuit.pack()
 
     # oops an error happened! - callback from thread
@@ -199,13 +200,16 @@ class Application(Frame):
         showinfo("ERROR!", "Non-recoverable error, try again!\n\n %s" % e)
         self.quit()
 
-    # handle requeest to exit - callback from thread
+    # handle request to exit - callback from thread
     def remote_exit(self):
+        logging.info('thread requests exit... destorying widgets')
         self.quit() # destroy widgets
 
-    # quit button event
+    # quit **button** event
     def do_quit(self):
         self.bQuit["state"] = DISABLED
+        if self.dl.isAlive(): self.dl.join()
+        self.dl = None
         self.quit()
 
     # window manager quit - callback from UI
