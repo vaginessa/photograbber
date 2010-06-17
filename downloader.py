@@ -72,10 +72,10 @@ class FBDownloader(Thread):
 
 
     # process and save albums
-    
+
     def save_albums(self):
         # set album folder names and get extra info
-        
+
         for album in self.albums.values():
             username = albumhelpers.get_friend_name(self.query_wrapper,
                                                     self.friends,
@@ -87,10 +87,10 @@ class FBDownloader(Thread):
                                                 album, self.friends)
                 albumhelpers.add_photo_paths(album)
             self.save_album(album)
-        
+
     def save_album(self, album):
         self.exit_if_terminated()
-        
+
         # Create album directory if it doesn't exist
         album_path = os.path.join(self.photos_path, album['folder'])
         if not os.path.isdir(album_path):
@@ -103,10 +103,10 @@ class FBDownloader(Thread):
 
     def save_photo(self, album_path, pid, photo):
         self.exit_if_terminated()
-        
+
         # Get the file...
         filename = os.path.join(album_path, '%s.jpg' % pid)
-        
+
         # If file already exists don't download
         if os.path.isfile(filename):
             self.photo_saved(None) # but update the counter
@@ -120,12 +120,12 @@ class FBDownloader(Thread):
     def fix_album(self, album):
         album_path = os.path.join(self.photos_path, album['folder'])
         os.utime(album_path, (int(album['modified']),) * 2)
-        
+
     # save_photo task is **successfully** completed
     def photo_saved(self, r):
         self.index += 1
         self.update(self.index, self.total)
-        
+
     # save_albums_dict is **successfully** completed
     def json_saved(self, r):
         logging.info('JSON files saved successfully')
@@ -144,13 +144,13 @@ class FBDownloader(Thread):
             # we want it to show that it's not done while we're waiting
             # for albums timestamps fixed and JSON written to disk
             self.total += 1
-            
+
             if not os.path.isdir(self.photos_path):
                 os.makedirs(self.photos_path) # recursive makedir
 
             # Concurrent download functionality
             self.po = multiprocessing.Pool(processes=5)
-            
+
             logging.info('Processing and saving albums')
             self.save_albums()
 
@@ -168,13 +168,13 @@ class FBDownloader(Thread):
             logging.info('Wait for all workers to finish')
             while multiprocessing.active_children():
                 self.exit_if_terminated()
-                time.sleep(1)            
+                time.sleep(1)
             self.po.join()
 
             logging.info('Fixing Album Timestamps')
             for album in self.albums.values():
                 self.fix_album(album)
-                
+
         except Exception, e:
             logging.exception('problem in download thread')
             self.exit_if_terminated()
