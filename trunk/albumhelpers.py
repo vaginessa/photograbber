@@ -158,14 +158,13 @@ def add_photo_paths(album):
 def save_albums_dict(albums, friends, path):
     '''save the albums and friends dictonaries to json files'''
     try:
+        temp = {}
+        temp['albums'] = albums
+        temp['friends'] = friends
         timestamp = time.strftime( "%y-%m-%d_%H-%M-%S")
-        filename = os.path.join(path, 'pg_albums_%s.json' % timestamp)
+        filename = os.path.join(path, 'photograbber_%s.json' % timestamp)
         db_file=open(filename,"w")
-        json.dump(albums, db_file)
-        db_file.close()
-        filename = os.path.join(path, 'pg_friends_%s.json' % timestamp)
-        db_file=open(filename,"w")
-        json.dump(friends, db_file)
+        json.dump(temp, db_file)
         db_file.close()
     except Exception, e:
         logging.exception('Saving JSON dictionaries did not work')
