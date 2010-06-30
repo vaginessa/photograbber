@@ -1,0 +1,9 @@
+#summary Facebook bugs relevant to PhotoGrabber
+
+= Introduction =
+
+Facebook's API's kind of suck.
+
+= The Bugs =
+ * http://bugs.developers.facebook.com/show_bug.cgi?id=10083
+ * http://bugs.developers.facebook.com/show_bug.cgi?id=10062
