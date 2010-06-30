@@ -1,6 +1,6 @@
 #summary This page explains Facebook security settings
 
-= This page is now out of date but I believe the concept is still the same. =
+= NOTE: This page is now out of date but I believe the concept is still the same. =
 
 = Introduction =
 
