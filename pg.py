@@ -105,8 +105,8 @@ class Application(Frame):
     # login button event
     def fblogin(self):
         try:
-            #facebook.getToken()
             logging.info("Redirecting user to browser to login.")
+            facebook.getToken()
         except Exception, e:
             self.error(e)
 

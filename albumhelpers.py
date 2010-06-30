@@ -4,10 +4,6 @@
 
 import sys, json, logging, time, os, urllib2
 
-CAPTION = -1
-DESCRIPTION = -2
-LOCATION = -3
-
 # Friends
 
 def get_friends(q_wrap, uid):
@@ -107,23 +103,11 @@ def get_album_comments(q_wrap, album, friends):
 
     album_comments = []
 
-    # add each photo's caption to it's comments
     for photo in album['photos'].values():
         o2pid[photo['object_id']] = photo['pid']
         oids.append('"%s"' % photo['object_id'])
-        if photo['caption']:
-            photo['comments'] = [{'fromid':CAPTION,
-                                  'text':photo['caption'], 'time':0}]
 
     oids.append('"%s"' % album['object_id'])
-
-    # add album info to it's comments
-    if album['description']:
-        album_comments.append({'fromid':DESCRIPTION, 'time':0,
-                               'text':album['description']})
-    if album['location']:
-        album_comments.append({'fromid':LOCATION, 'time':1,
-                               'text':album['location']})
 
     # load all comments for album and its photos
     for item in q_wrap(q % ','.join(oids)):
@@ -157,17 +141,24 @@ def add_photo_paths(album):
 
 def save_albums_dict(albums, friends, path):
     '''save the albums and friends dictonaries to json files'''
-    try:
-        temp = {}
-        temp['albums'] = albums
-        temp['friends'] = friends
-        timestamp = time.strftime( "%y-%m-%d_%H-%M-%S")
-        filename = os.path.join(path, 'photograbber_%s.json' % timestamp)
-        db_file=open(filename,"w")
-        json.dump(temp, db_file)
-        db_file.close()
-    except Exception, e:
-        logging.exception('Saving JSON dictionaries did not work')
+    ts = time.strftime("%y-%m-%d_%H-%M-%S")
+
+    print albums
+    for album in albums.values():
+        filename = os.path.join(path, album['folder'], 'pg_%s.json' % ts)
+        alfilename = os.path.join(path, album['folder'], 'album.json')
+        htmlfilename = os.path.join(path, album['folder'], 'viewer.html')
+        try:
+            db_file = open(filename, "w")
+            db_file.write("var al = ");
+            json.dump(album, db_file)
+            db_file.write(";\n")
+            db_file.close()
+            import shutil
+            shutil.copy(filename, alfilename)
+            shutil.copy(os.path.join('img', 'viewer.html'), htmlfilename)
+        except Exception, e:
+            logging.exception('Saving JSON Failed: %s', filename)
 
 def download_pic(photo, filename):
     '''downloads a picture (retries 10 times before failure)'''
