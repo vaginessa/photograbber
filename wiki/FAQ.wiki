@@ -3,15 +3,15 @@
 
 === Facebook says I have 600 photos and PG only downloads 300 omgwtfbbq? ===
 
-Most likely the people who have uploaded and tagged pictures of you block applications from accessing the information.  Get them to relax their privacy settings or better yet get them to download and use PhotoGrabber!
+Privacy settings.  A facebook application with a user's credentials has different permissions than the same user accessing facebook from a browser.  The people who have uploaded and tagged pictures of you are probably blocking applications from accessing their information.  Get them to relax their privacy settings or, better yet, get them to use PhotoGrabber too!
 
 === Will this app steal my credit card number??? ===
 
-No.  Check the sauce code if you would like to verify.
+No.  Check the source code if you would like to verify.
 
 === Will this app spam my friends??? ===
 
-Only if you want it to.
+No.
 
 === Why can people download pictures of me? ===
 
