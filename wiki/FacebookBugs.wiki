@@ -2,7 +2,7 @@
 
 = Introduction =
 
-Facebook's API's kind of suck.
+Facebook's APIs kind of suck.
 
 = The Bugs =
  * http://bugs.developers.facebook.com/show_bug.cgi?id=10083
