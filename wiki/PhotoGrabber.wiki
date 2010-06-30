@@ -1,5 +1,21 @@
 #summary PhotoGrabber Changelog
 
+=== Revision ???: Early July ===
+  * *FIX* - Issue 13: silently ignore 404 errors
+  * *FIX* - Issue 15: correctly create the download folder
+  * Feature: Download a user's albums, Issue 9
+  * Feature: Download all albums a user is tagged in
+  * Feature: Download comments/tag information
+  * Feature: HTML album viewer created when downloading comments/tags
+  * Improved threading and handling of exit scenarios, Issue 22
+  * Improved error handling and logging
+  * Failed queries are now repeated until successful
+  * Photos are now sorted into folders by album
+  * File modification timestamps are now properly set
+  * Updated Facebook authentication to work with the new API (http://developers.facebook.com/docs/authentication/desktop)
+
+A special thanks to [http://www.bryceboe.com/ Bryce Boe] for his contributions (Issue 27)
+
 === Revision 36: 6 Jan 2010 ===
   * *FIX* - Issue 7: missing dll files on Windows
   * *FIX* - Issue 8: wrong python version on OSX
