@@ -1,5 +1,6 @@
 #summary This page explains Facebook security settings
-#labels Featured
+
+= This page is now out of date but I believe the concept is still the same. =
 
 = Introduction =
 
