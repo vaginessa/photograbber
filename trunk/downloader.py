@@ -83,6 +83,7 @@ class FBDownloader(Thread):
                                                     album['owner'])
             album['folder'] = self.REPLACE_RE.sub('_', '%s-%s' %
                                          (username, album['name']))
+            album['ownername'] = username
             if self.extras:
                 albumhelpers.get_album_comments(self.query_wrapper,
                                                 album, self.friends)
