@@ -3,10 +3,11 @@
 === Revision ???: Early July ===
   * *FIX* - Issue 13: silently ignore 404 errors
   * *FIX* - Issue 15: correctly create the download folder
-  * Feature: Download a user's albums, Issue 9
-  * Feature: Download all albums a user is tagged in
-  * Feature: Download comments/tag information
-  * Feature: HTML album viewer created when downloading comments/tags
+  * *Feature*: Download a user's albums, Issue 9
+  * *Feature*: Download all albums a user is tagged in
+  * *Feature*: Download comments/tag information
+  * *Feature*: HTML album viewer created when downloading comments/tags
+  * *Feature*: Concurrently download photos
   * Improved threading and handling of exit scenarios, Issue 22
   * Improved error handling and logging
   * Failed queries are now repeated until successful
