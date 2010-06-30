@@ -8,13 +8,13 @@ class FBDownloader(Thread):
     REPLACE_RE = re.compile(r'\*|"|\'|:|<|>|\?|\\|/|\|,| ')
 
     def __init__ (self, photos_path, uid, friends,
-                        full_albums, user_albums, extras, facebook,
+                        full_albums, user_albums, extras, graph,
                         update_callback, force_exit_callback):
         Thread.__init__(self)
         self.photos_path = photos_path
         self.uid = uid
         self.friends = friends
-        self.facebook = facebook
+        self.graph = graph
         # options
         self.full_albums = full_albums
         self.user_albums = user_albums
@@ -44,10 +44,11 @@ class FBDownloader(Thread):
             # check if thread should be terminated
             self.exit_if_terminated()
             try:
-                return self.facebook.fql.query(q)
+                return self.graph.fql(q)
             except Exception, e:
                 if retries < max_retries:
                     logging.info('retrying function: %d\n' % retries)
+                    logging.info('Reason: %s' % e)
                     retries += 1
                     # sleep longer and longer between retries
                     time.sleep(retries * 2)

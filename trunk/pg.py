@@ -1,10 +1,10 @@
 #!/usr/bin/python
 from Tkinter import *
 from tkMessageBox import *
-from facebook import Facebook
 import tkDirectoryChooser
 import tkMessageBox
 import downloader
+import facebook
 import sys, traceback, logging
 
 class Application(Frame):
@@ -36,6 +36,10 @@ class Application(Frame):
         self.bLogin = Button(self, image=imglogin, command=self.fblogin)
         self.bLogin.image = imglogin
         self.bLogin.pack()
+
+        # login textbox
+        self.tokenL = Label(self, text="Paste your login token here:")
+        self.tokenE = Entry(self)
 
         # logged in button
         imgcreep = PhotoImage(file="img/creepon.ppm")
@@ -96,17 +100,13 @@ class Application(Frame):
             + "eat.ourbunny.com\n\n"
             + "Contributions from Bryce Boe:\n"
             + "bryceboe.com\n\n"
-            + "Facebook API:\ngithub.com/sciyoshi/pyfacebook\n\n"
             + "Icons:\neveraldo.com/crystal")
 
     # login button event
     def fblogin(self):
-        # api_key and secret_key
         try:
-            self.facebook = Facebook('227fe70470173eca69e4b38b6518fbfd',
-                                     '6831060776f620cc2588fd053250cabb')
-            self.facebook.auth.createToken()
-            self.facebook.login()
+            #facebook.getToken()
+            logging.info("Redirecting user to browser to login.")
         except Exception, e:
             self.error(e)
 
@@ -114,24 +114,25 @@ class Application(Frame):
         self.bLogin["state"]=DISABLED
         self.bLogin.pack_forget()
         # select a user button
+        self.tokenL.pack(fill=X)
+        self.tokenE.pack(fill=X)
         self.bCreep.pack(fill=X)
 
     # load the list of friends
     def creep(self):
         try:
-            self.facebook.auth.getSession()
+            if self.tokenE.get() == "": return
+            self.graph = facebook.GraphAPI(self.tokenE.get())
+            self.profile = self.graph.get_object('me')
+            friends = self.graph.get_object('me/friends')['data']
 
-            q = ''.join(['SELECT uid, name FROM user WHERE uid IN ',
-                         '(SELECT uid2 FROM friend WHERE uid1 = %(name)s) ',
-                         'OR uid=%(name)s']) % {"name":self.facebook.uid}
-            self.people = self.facebook.fql.query(q)
-            self.people.sort()
+            self.people = sorted(friends, key=lambda k:k['name'].lower())
 
             for person in self.people :
                 name = person['name']
                 self.lbPeople.insert(END, name)
 
-            me = dict(uid=self.facebook.uid,name="Myself")
+            me = dict(id=self.profile['id'],name="Myself")
             self.lbPeople.insert(0, "Myself")
             self.people.insert(0,me)
 
@@ -141,6 +142,7 @@ class Application(Frame):
         except Exception, e:
             self.error(e)
 
+        self.tokenE["state"]=DISABLED
         self.bCreep["state"]=DISABLED
         self.bDownload.pack()
 
@@ -162,12 +164,12 @@ class Application(Frame):
 
             # check listbox selection
             if len(item) == 1:
-                uid = self.people[int(item[0])]['uid']
+                uid = self.people[int(item[0])]['id']
             else:
-                uid = self.facebook.uid
+                uid = self.profile['id']
 
             # make dictonary of friends
-            friends = dict((x['uid'], x['name']) for x in self.people)
+            friends = dict((x['id'], x['name']) for x in self.people)
 
             # download
             logging.info('starting FBDownloader thread')
@@ -175,7 +177,7 @@ class Application(Frame):
                                               self.full_albums.get(),
                                               self.user_albums.get(),
                                               self.extras.get(),
-                                              self.facebook,
+                                              self.graph,
                                               self.update_status,
                                               self.remote_exit)
             self.dl.start()
