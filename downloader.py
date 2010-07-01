@@ -47,7 +47,7 @@ class FBDownloader(Thread):
                 return self.graph.fql(q)
             except Exception, e:
                 if retries < max_retries:
-                    logging.info('retrying function: %d\n' % retries)
+                    logging.info('retrying function: %d' % retries)
                     logging.info('Reason: %s' % e)
                     retries += 1
                     # sleep longer and longer between retries

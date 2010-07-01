@@ -30,7 +30,7 @@ def get_friend(q_wrap, uid):
 
 def get_friend_name(q_wrap, friends, uid):
     '''returns a person's name.  Adds the name if it doesn't exist.'''
-    if uid == None:
+    if uid == None or uid == '':
         # this should never happen... but it did once
         return 'Unknown'
     if uid not in friends:
@@ -42,14 +42,38 @@ def get_friend_name(q_wrap, friends, uid):
 def get_tagged_albums(q_wrap, uid, albums):
     '''return info from all albums in which the uid was tagged'''
 
-    q = ''.join(['SELECT aid, owner, name, modified, description, ',
-                 'location, object_id FROM album WHERE aid IN (SELECT ',
-                 'aid FROM photo WHERE pid IN (SELECT pid FROM photo_tag ',
-                 'WHERE subject="%s"))']) % uid
+    # limit 5000 problem for this query
+    q = ''.join(['SELECT aid FROM photo WHERE pid IN (SELECT ',
+                 'pid FROM photo_tag WHERE subject="%s")']) % uid
+    album_ids = q_wrap(q)
+    album_ids_n = tuple(set('%s' % x['aid'] for x in album_ids))
+    album_ids = tuple(set('"%s"' % x['aid'] for x in album_ids))
 
-    for item in q_wrap(q):
-        item['photos'] = {}
-        albums[item['aid']] = item
+    # 50 seems like a good number of album_ids to retrieve at a time...
+    q = ''.join(['SELECT aid, owner, name, modified, description, ',
+                 'location, object_id FROM album WHERE aid IN (%s)'])
+    for i in range(len(album_ids) / 50 + 1):
+        aids = ','.join(album_ids[i*50:(i+1)*50])
+        for item in q_wrap(q % aids):
+            item['photos'] = {}
+            albums[item['aid']] = item
+
+    # due to permissions some albums might not have info
+    for aid in album_ids_n:
+        if aid not in albums.keys():
+            fill_empty_album(q_wrap, aid, albums)
+
+def fill_empty_album(q_wrap, aid, albums):
+    album = {}
+    album['aid'] = aid
+    album['owner'] = ''
+    album['name'] = 'Unknown_%s' % aid
+    album['modified'] = '0'
+    album['description'] = ''
+    album['location'] = ''
+    album['photos'] = {}
+    # no object id
+    albums[aid] = album
 
 def get_uploaded_albums(q_wrap, uid, albums):
     '''return info from all albums uploaded by uid'''
@@ -63,6 +87,7 @@ def get_uploaded_albums(q_wrap, uid, albums):
 
 def get_tagged_pictures(q_wrap, uid, albums):
     '''add all pictures where the user is tagged'''
+    # limit 5000 problem for this query
     q = ''.join(['SELECT pid, aid, src_big, caption, created, object_id ',
                  'FROM photo WHERE pid IN (SELECT pid FROM photo_tag ',
                  'WHERE subject="%s")']) % uid
@@ -73,14 +98,16 @@ def get_tagged_pictures(q_wrap, uid, albums):
 
 def get_tagged_album_pictures(q_wrap, uid, albums):
     '''add full albums where the user is tagged'''
-    q = ''.join(['SELECT pid, aid, src_big, caption, created, ',
-                 'object_id FROM photo WHERE aid IN (SELECT aid ',
-                 'FROM photo WHERE pid IN (SELECT pid FROM photo_tag ',
-                 'WHERE subject="%s"))']) % uid
 
-    for photo in q_wrap(q):
-        albums[photo['aid']]['photos'][photo['pid']] = photo
+    album_ids = tuple(set('"%s"' % x['aid'] for x in albums))
+    # query in groups of 25 (limit 5000 each)
+    q = ''.join(['SELECT pid, aid, src_big, caption, ',
+                 'created, object_id FROM photo WHERE aid IN (%s)'])
+    for i in range(len(album_ids) / 25 + 1):
+        aids = ','.join(album_ids[i * 25:(i+1) * 25])
 
+        for photo in q_wrap(q % aids):
+            albums[photo['aid']]['photos'][photo['pid']] = photo
 
 def get_user_album_pictures(q_wrap, uid, albums):
     '''all pictures in albums uploaded by the user'''
@@ -107,7 +134,7 @@ def get_album_comments(q_wrap, album, friends):
         o2pid[photo['object_id']] = photo['pid']
         oids.append('"%s"' % photo['object_id'])
 
-    oids.append('"%s"' % album['object_id'])
+    if 'object_id' in album: oids.append('"%s"' % album['object_id'])
 
     # load all comments for album and its photos
     for item in q_wrap(q % ','.join(oids)):

@@ -205,6 +205,9 @@ class GraphAPI(object):
         file = urllib.urlopen(path % args)
         try:
             response = _parse_json(file.read())
+            if type(response) is dict and "error_code" in response:
+                raise GraphAPIError(response["error_code"],
+                                    response["error_msg"])
         except Exception, e:
             raise e
         finally:
@@ -215,7 +218,6 @@ class GraphAPIError(Exception):
     def __init__(self, type, message):
         Exception.__init__(self, message)
         self.type = type
-
 
 def get_user_from_cookie(cookies, app_id, app_secret):
     """Parses the cookie set by the official Facebook JavaScript SDK.
