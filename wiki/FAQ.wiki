@@ -1,6 +1,8 @@
 #summary Frequently Asked Questions
 #labels Featured
 
+<wiki:toc max_depth="1" />
+
 === Facebook says I have 600 photos and PG only downloads 300 omgwtfbbq? ===
 
 Privacy settings.  A facebook application with a user's credentials has different permissions than the same user accessing facebook from a browser.  The people who have uploaded and tagged pictures of you are probably blocking applications from accessing their information.  Get them to relax their privacy settings or, better yet, get them to use PhotoGrabber too!
