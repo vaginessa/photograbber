@@ -239,8 +239,6 @@ LEVELS = {'debug': logging.DEBUG,
           'critical': logging.CRITICAL}
 
 def main(level=logging.ERROR):
-    # add freeze support
-    multiprocessing.freeze_support()
     logging.basicConfig(level=level)
     app = Application()
     try:
@@ -250,6 +248,8 @@ def main(level=logging.ERROR):
     if app.dl: app.dl.join()
 
 if __name__ == '__main__':
+    # add freeze support
+    multiprocessing.freeze_support()
     level = logging.ERROR
     if len(sys.argv) > 1:
         level_name = sys.argv[1]
