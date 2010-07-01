@@ -17,7 +17,7 @@
 
 A special thanks to [http://www.bryceboe.com/ Bryce Boe] for his contributions (Issue 27)
 
-[http://photograbber.googlecode.com/files/pg-r69.png]
+[http://photograbber.googlecode.com/files/pg-r74.png]
 
 === Revision 36: 6 Jan 2010 ===
   * *FIX* - Issue 7: missing dll files on Windows
