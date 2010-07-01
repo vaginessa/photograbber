@@ -121,7 +121,9 @@ class Application(Frame):
     # load the list of friends
     def creep(self):
         try:
-            if self.tokenE.get() == "": return
+            if self.tokenE.get() == "":
+                facebook.getToken() # in case the first time didn't work
+                return
             self.graph = facebook.GraphAPI(self.tokenE.get())
             self.profile = self.graph.get_object('me')
             friends = self.graph.get_object('me/friends')['data']
