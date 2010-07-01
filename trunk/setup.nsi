@@ -1,6 +1,6 @@
 !define py2exeOutputDir 'dist'
 !define exe             'pg.exe'
-!define icon            'img\pg.ico'
+!define icon            'dep\pg.ico'
 !define compressor      'lzma'  ;one of 'zlib', 'bzip2', 'lzma'
 !define onlyOneInstance
 
