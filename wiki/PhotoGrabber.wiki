@@ -1,6 +1,6 @@
 #summary PhotoGrabber Changelog
 
-=== Revision 69: 1 July 2010 ===
+=== Revision 74: 1 July 2010 ===
   * *FIX* - Issue 13: silently ignore 404 errors
   * *FIX* - Issue 15: correctly create the download folder
   * *FEATURE*: Download a user's albums, Issue 9
