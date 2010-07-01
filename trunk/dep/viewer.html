@@ -148,7 +148,7 @@ set_selection = function(thumb) {
 		mydiv.appendChild(cdiv);
 		for (comment in al['photos'][pid]['comments']) {
 			var thecomment = document.createElement('p');
-			var name = al['photos'][pid]['comments'][comment]['name'];
+			var name = al['photos'][pid]['comments'][comment]['fromname'];
 			var text = al['photos'][pid]['comments'][comment]['text'];
 			var time = al['photos'][pid]['comments'][comment]['time'];
 			var oDate = new Date(time*1000);
@@ -231,7 +231,7 @@ function paintAlbum(){
 		var cdiv = document.getElementById('albumcomments');
 		for (comment in al['comments']) {
 			var thecomment = document.createElement('p');
-			var name = al['comments'][comment]['name'];
+			var name = al['comments'][comment]['fromname'];
 			var text = al['comments'][comment]['text'];
 			var time = al['comments'][comment]['time'];
 			var oDate = new Date(time*1000);

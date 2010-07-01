@@ -16,7 +16,7 @@ class Application(Frame):
         self.pack(fill=BOTH, expand=1)
         # fix icon on windows
         if sys.platform == 'win32':
-            self.master.iconbitmap(default='img/pg.ico')
+            self.master.iconbitmap(default='dep/pg.ico')
         # downloading thread
         self.dl = None
         self.createWidgets()
@@ -32,7 +32,7 @@ class Application(Frame):
         filemenu.add_command(label="Quit", command=self.quit_wrapper)
 
         # login button
-        imglogin = PhotoImage(file="img/login.ppm")
+        imglogin = PhotoImage(file="dep/login.ppm")
         self.bLogin = Button(self, image=imglogin, command=self.fblogin)
         self.bLogin.image = imglogin
         self.bLogin.pack()
@@ -42,7 +42,7 @@ class Application(Frame):
         self.tokenE = Entry(self)
 
         # logged in button
-        imgcreep = PhotoImage(file="img/creepon.ppm")
+        imgcreep = PhotoImage(file="dep/creepon.ppm")
         self.bCreep = Button(self, image=imgcreep, command=self.creep)
         self.bCreep.image = imgcreep
 
@@ -81,7 +81,7 @@ class Application(Frame):
         self.lbPeople.pack(side=RIGHT, fill=BOTH, expand=1)
 
         # download button
-        imgdownload = PhotoImage(file="img/download.ppm")
+        imgdownload = PhotoImage(file="dep/download.ppm")
         self.bDownload = Button(self, image=imgdownload, command=self.download)
         self.bDownload.image = imgdownload
 
@@ -89,7 +89,7 @@ class Application(Frame):
         self.lDownload = Label(self)
 
         # quit button
-        imgquit = PhotoImage(file="img/quit.ppm")
+        imgquit = PhotoImage(file="dep/quit.ppm")
         self.bQuit = Button(self, image=imgquit, command=self.do_quit)
         self.bQuit.image = imgquit
 

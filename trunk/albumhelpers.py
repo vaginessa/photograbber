@@ -135,7 +135,8 @@ def get_album_comments(q_wrap, album, friends):
 def add_photo_paths(album):
     '''set path info in album dictionary'''
     for photo in album['photos'].items():
-        photo[1]['path'] = os.path.join(album['folder'], '%s.jpg' % photo[0])
+        #photo[1]['path'] = os.path.join(album['folder'], '%s.jpg' % photo[0])
+        photo[1]['path'] = '%s.jpg' % photo[0]
 
 # Save commands
 
@@ -143,7 +144,6 @@ def save_albums_dict(albums, friends, path):
     '''save the albums and friends dictonaries to json files'''
     ts = time.strftime("%y-%m-%d_%H-%M-%S")
 
-    print albums
     for album in albums.values():
         filename = os.path.join(path, album['folder'], 'pg_%s.json' % ts)
         alfilename = os.path.join(path, album['folder'], 'album.json')
@@ -156,7 +156,7 @@ def save_albums_dict(albums, friends, path):
             db_file.close()
             import shutil
             shutil.copy(filename, alfilename)
-            shutil.copy(os.path.join('img', 'viewer.html'), htmlfilename)
+            shutil.copy(os.path.join('dep', 'viewer.html'), htmlfilename)
         except Exception, e:
             logging.exception('Saving JSON Failed: %s', filename)
 
