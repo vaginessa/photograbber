@@ -112,12 +112,11 @@ def get_album_comments(q_wrap, album, friends):
     # load all comments for album and its photos
     for item in q_wrap(q % ','.join(oids)):
         oid = item['object_id']
+        # add the friend's name
+        item['fromname'] = get_friend_name(q_wrap, friends, item['fromid'])
         if oid in o2pid: # photo comment
             clist = album['photos'][o2pid[oid]].setdefault('comments',
                                                            [])
-            # add the friend's name
-            item['fromname'] = get_friend_name(q_wrap, friends, item['fromid'])
-
             clist.append(item)
         else: # album comment
             album_comments.append(item)
