@@ -1,21 +1,23 @@
 #summary PhotoGrabber Changelog
 
-=== Revision ???: Early July ===
-  * *FIX* - Issue 13: silently ignore 404 errors
-  * *FIX* - Issue 15: correctly create the download folder
+=== Revision 69: 1 July 2010 ===
   * *Feature*: Download a user's albums, Issue 9
   * *Feature*: Download all albums a user is tagged in
   * *Feature*: Download comments/tag information
   * *Feature*: HTML album viewer created when downloading comments/tags
   * *Feature*: Concurrently download photos
+  * *FIX* - Issue 13: silently ignore 404 errors
+  * *FIX* - Issue 15: correctly create the download folder
   * Improved threading and handling of exit scenarios, Issue 22
   * Improved error handling and logging
   * Failed queries are now repeated until successful
-  * Photos are now sorted into folders by album
+  * Photos are now sorted into album folders
   * File modification timestamps are now properly set
   * Updated Facebook authentication to work with the new API (http://developers.facebook.com/docs/authentication/desktop)
 
 A special thanks to [http://www.bryceboe.com/ Bryce Boe] for his contributions (Issue 27)
+
+[http://photograbber.googlecode.com/files/pg-r69.png]
 
 === Revision 36: 6 Jan 2010 ===
   * *FIX* - Issue 7: missing dll files on Windows
