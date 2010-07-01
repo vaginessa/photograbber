@@ -6,6 +6,7 @@ import tkMessageBox
 import downloader
 import facebook
 import sys, traceback, logging
+import multiprocessing
 
 class Application(Frame):
     def __init__(self, master=None):
@@ -238,6 +239,8 @@ LEVELS = {'debug': logging.DEBUG,
           'critical': logging.CRITICAL}
 
 def main(level=logging.ERROR):
+    # add freeze support
+    multiprocessing.freeze_support()
     logging.basicConfig(level=level)
     app = Application()
     try:
