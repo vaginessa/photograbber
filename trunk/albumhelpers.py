@@ -99,7 +99,7 @@ def get_tagged_pictures(q_wrap, uid, albums):
 def get_tagged_album_pictures(q_wrap, uid, albums):
     '''add full albums where the user is tagged'''
 
-    album_ids = tuple(set('"%s"' % x['aid'] for x in albums))
+    album_ids = tuple(set('"%s"' % x for x in albums))
     # query in groups of 25 (limit 5000 each)
     q = ''.join(['SELECT pid, aid, src_big, caption, ',
                  'created, object_id FROM photo WHERE aid IN (%s)'])
