@@ -5,7 +5,7 @@ import albumhelpers
 import logging
 
 class FBDownloader(Thread):
-    REPLACE_RE = re.compile(r'\*|"|\'|:|<|>|\?|\\|/|\|,| ')
+    REPLACE_RE = re.compile(r'\*|"|\'|:|<|>|\?|\\|/|\|,|\|| ')
 
     def __init__ (self, photos_path, uid, friends,
                         full_albums, user_albums, extras, graph,
