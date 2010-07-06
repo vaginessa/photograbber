@@ -1,11 +1,17 @@
 #!/usr/bin/python
+import sys
+if hasattr(sys, "winver") and hasattr(sys, "frozen"):
+    os.environ["TCL_LIBRARY"] = os.path.join(os.path.dirname(sys.executable),
+                                             "tcl",
+                                             "tcl8.5")
 from Tkinter import *
 from tkMessageBox import *
 import tkDirectoryChooser
 import tkMessageBox
 import downloader
 import facebook
-import sys, traceback, logging
+import traceback
+import logging
 import multiprocessing
 
 class Application(Frame):
