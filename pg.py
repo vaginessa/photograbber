@@ -126,8 +126,14 @@ class Application(Frame):
                 facebook.getToken() # in case the first time didn't work
                 return
             self.graph = facebook.GraphAPI(self.tokenE.get())
-            self.profile = self.graph.get_object('me')
-            friends = self.graph.get_object('me/friends')['data']
+            try:
+                self.profile = self.graph.get_object('me')
+                friends = self.graph.get_object('me/friends')['data']
+            except Exception, e:
+                m = ''.join(['There was a problem connecting to facebook,',
+                            ' please try again:\n\n %s'])
+                showinfo("Error", m % e)
+                return
 
             self.people = sorted(friends, key=lambda k:k['name'].lower())
 
