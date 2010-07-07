@@ -1,5 +1,6 @@
 #!/usr/bin/python
 import sys
+import os
 if hasattr(sys, "winver") and hasattr(sys, "frozen"):
     os.environ["TCL_LIBRARY"] = os.path.join(os.path.dirname(sys.executable),
                                              "tcl",
