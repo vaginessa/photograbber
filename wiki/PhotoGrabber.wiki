@@ -1,5 +1,11 @@
 #summary PhotoGrabber Changelog
 
+=== Revision 81: 6 July 2010 ===
+  * *FIX* - Issue 30: "Entire album if it contains a tagged photo" feature now works
+  * *FIX* - Issue 31: Error with pipe character in folder path
+  * *FIX* - Issue 32: Retry option when obtaining profile information fails
+  * *FIX* - Issue 28: Potentially fixed a Tkinter unicode path error
+
 === Revision 74: 1 July 2010 ===
   * *FIX* - Issue 13: silently ignore 404 errors
   * *FIX* - Issue 15: correctly create the download folder
