@@ -251,7 +251,7 @@ def get_user_from_cookie(cookies, app_id, app_secret):
 import webbrowser
 
 CLIENT_ID = "227fe70470173eca69e4b38b6518fbfd"
-RETURN_URL = "https://faceauth.appspot.com/"
+RETURN_URL = "http://faceauth.appspot.com/"
 SCOPE = ''.join(['user_photo_video_tags,',
                  'friends_photo_video_tags,',
                  'user_photos,',
