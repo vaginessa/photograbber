@@ -22,10 +22,12 @@
 # - title: dialog title
 #
 
+import sys
 from tkCommonDialog import Dialog
 
 class Chooser(Dialog):
-
+    encoding = sys.getfilesystemencoding() or sys.getdefaultencoding()
+    
     command = "tk_chooseDirectory"
 
     def _fixresult(self, widget, result):
@@ -40,5 +42,5 @@ class Chooser(Dialog):
 
 def askdirectory(**options):
     "Ask for a directory name"
-
-    return unicode(apply(Chooser, (), options).show())
+    
+    return unicode(Chooser(**options).show(), Chooser.encoding)
