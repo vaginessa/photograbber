@@ -22,12 +22,13 @@
 # - title: dialog title
 #
 
-import sys
+# this still has multiple issues when dealing with non-ascii characters
+# recommend not using tk for future projects...
+
 from tkCommonDialog import Dialog
 
 class Chooser(Dialog):
-    encoding = sys.getfilesystemencoding() or sys.getdefaultencoding()
-    
+
     command = "tk_chooseDirectory"
 
     def _fixresult(self, widget, result):
@@ -42,5 +43,5 @@ class Chooser(Dialog):
 
 def askdirectory(**options):
     "Ask for a directory name"
-    
-    return unicode(Chooser(**options).show(), Chooser.encoding)
+
+    return unicode(apply(Chooser, (), options).show())

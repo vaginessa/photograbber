@@ -7,12 +7,12 @@ import logging
 class FBDownloader(Thread):
     REPLACE_RE = re.compile(r'\*|"|\'|:|<|>|\?|\\|/|\|,|\|| ')
 
-    def __init__ (self, photos_path, uid, friends,
+    def __init__ (self, photos_path, uids, friends,
                         full_albums, user_albums, extras, graph,
                         update_callback, force_exit_callback):
         Thread.__init__(self)
         self.photos_path = photos_path
-        self.uid = uid
+        self.uids = uids
         self.friends = friends
         self.graph = graph
         # options
@@ -135,51 +135,62 @@ class FBDownloader(Thread):
     # the main show
     def run(self):
         try:
-            logging.info('Getting album info')
-            self.get_albums()
+            for uid in self.uids:
+                # reset some info
+                self.albums = {}
+                self.index = 0
 
-            logging.info('Getting picture info')
-            self.get_pictures()
+                # download uid
+                self.uid = uid
+                
+                logging.info('Getting album info')
+                self.get_albums()
 
-            self.total = sum(len(album['photos'])
-                             for album in self.albums.values())
-            # we want it to show that it's not done while we're waiting
-            # for albums timestamps fixed and JSON written to disk
-            self.total += 1
+                logging.info('Getting picture info')
+                self.get_pictures()
 
-            if not os.path.isdir(self.photos_path):
-                os.makedirs(self.photos_path) # recursive makedir
+                self.total = sum(len(album['photos'])
+                                 for album in self.albums.values())
+                # we want it to show that it's not done while we're waiting
+                # for albums timestamps fixed and JSON written to disk
+                #
+                # this caused confusion, Issue 72, Issue 100
+                #self.total += 1
 
-            # Concurrent download functionality
-            self.po = multiprocessing.Pool(processes=5)
+                if not os.path.isdir(self.photos_path):
+                    os.makedirs(self.photos_path) # recursive makedir
 
-            logging.info('Processing and saving albums')
-            self.save_albums()
+                # Concurrent download functionality
+                self.po = multiprocessing.Pool(processes=5)
 
-            if self.extras:
-                logging.info('Saving JSON dictionaries')
-                self.po.apply_async(albumhelpers.save_albums_dict,
-                                   (self.albums,
-                                    self.friends,
-                                    self.photos_path),
-                                    callback = self.json_saved)
+                logging.info('Processing and saving albums')
+                self.save_albums()
 
-            # Stop accepting more work
-            self.po.close()
+                if self.extras:
+                    logging.info('Saving JSON dictionaries')
+                    self.po.apply_async(albumhelpers.save_albums_dict,
+                                       (self.albums,
+                                        self.friends,
+                                        self.photos_path),
+                                        callback = self.json_saved)
 
-            logging.info('Wait for all workers to finish')
-            while multiprocessing.active_children():
-                self.exit_if_terminated()
-                time.sleep(1)
-            self.po.join()
+                # Stop accepting more work
+                self.po.close()
 
-            logging.info('Fixing Album Timestamps')
-            for album in self.albums.values():
-                self.fix_album(album)
+                logging.info('Wait for all workers to finish')
+                while multiprocessing.active_children():
+                    self.exit_if_terminated()
+                    time.sleep(1)
+                self.po.join()
+
+                logging.info('Fixing Album Timestamps')
+                for album in self.albums.values():
+                    self.fix_album(album)
 
         except Exception, e:
             logging.exception('problem in download thread')
             self.exit_if_terminated()
             self.force_exit() # kill GUI
             sys.exit(1) # kill thread
+            
         self.update(self.total,self.total,done=True)
