@@ -105,7 +105,7 @@ class Application(Frame):
     # display about information
     def aboutmsg(self):
         showinfo("About PhotoGrabber", "Developed by Tommy Murphy:\n"
-            + "www.ourbunny.com\n\n"
+            + "www.ourbunny.com\n@ourbunny on twitter\n\n"
             + "Contributions from Bryce Boe:\n"
             + "bryceboe.com\n\n"
             + "Icons:\neveraldo.com/crystal\n\n"
