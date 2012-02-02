@@ -58,7 +58,7 @@ class Application(Frame):
         self.pFrame = Frame(self)
         self.sb = Scrollbar(self.pFrame, orient=VERTICAL)
         self.lbPeople = Listbox(self.pFrame, yscrollcommand=self.sb.set,
-                                selectmode=SINGLE)
+                                selectmode=MULTIPLE)
         self.sb.config(command=self.lbPeople.yview)
         # check boxes
         self.default_cb = Checkbutton(self.pFrame,
@@ -105,10 +105,11 @@ class Application(Frame):
     # display about information
     def aboutmsg(self):
         showinfo("About PhotoGrabber", "Developed by Tommy Murphy:\n"
-            + "eat.ourbunny.com\n\n"
+            + "www.ourbunny.com\n\n"
             + "Contributions from Bryce Boe:\n"
             + "bryceboe.com\n\n"
-            + "Icons:\neveraldo.com/crystal")
+            + "Icons:\neveraldo.com/crystal\n\n"
+            + "Released Under GNU GPL v3:\nhttp://www.gnu.org/licenses/gpl.html")
 
     # login button event
     def fblogin(self):
@@ -179,17 +180,19 @@ class Application(Frame):
             self.extras_cb["state"]=DISABLED
 
             # check listbox selection
-            if len(item) == 1:
-                uid = self.people[int(item[0])]['id']
-            else:
-                uid = self.profile['id']
+            uids = []
+            for profile_id in item:
+                uids.append(self.people[int(profile_id)]['id'])
+            
+            if len(item) == 0:
+                uid.append(self.profile['id'])
 
             # make dictonary of friends
             friends = dict((x['id'], x['name']) for x in self.people)
 
             # download
             logging.info('starting FBDownloader thread')
-            self.dl = downloader.FBDownloader(self.directory, uid, friends,
+            self.dl = downloader.FBDownloader(self.directory, uids, friends,
                                               self.full_albums.get(),
                                               self.user_albums.get(),
                                               self.extras.get(),
@@ -205,7 +208,14 @@ class Application(Frame):
 
     # update download status function - callback from thread
     def update_status(self, index, total, done=False):
-        self.lDownload["text"] = '%s of %s' % (index, total)
+        # notify when fixing timestamps... (related to Issue 72)
+        if (index == total and not done):
+            self.lDownload["text"] = "Correcting Timestamps..."
+        elif (index == total and done):
+            self.lDownload["text"] = "Complete!"
+        else:
+            self.lDownload["text"] = '%s of %s' % (index, total)
+        
         self.lDownload.pack()
 
         if done:
