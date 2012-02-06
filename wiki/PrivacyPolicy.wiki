@@ -1,0 +1,16 @@
+#summary Privacy Policy for the PhotoGrabber Facebook App
+
+= What Information Do We Collect =
+
+For each login request Google App Engine logs:
+  * the IP address
+  * date and time
+  * browser 
+
+
+= Details =
+
+Add your content here.  Format your content with:
+  * Text in *bold* or _italic_
+  * Headings, paragraphs, and lists
+  * Automatic links to other wiki pages
