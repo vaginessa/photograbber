@@ -1,6 +1,6 @@
 #summary Privacy Policy for the PhotoGrabber Facebook App
 
-= What Information Do We Collect =
+= What Information Do We Collect? =
 
 For each login request, Google App Engine collects the following information:
   * Date and Time
@@ -9,6 +9,6 @@ For each login request, Google App Engine collects the following information:
 
 The [https://www.google.com/intl/en/policies/privacy/ Google Privacy Policy] applies this this data.
 
-No other information is collected when using the PhotoGrabber software.  The limited data made available by using the Google App engine is only used for development purposes and is not shared with any third parties.
+No other information is collected when using the PhotoGrabber software.  The limited data collected by Google App engine is used only for development purposes and is not shared with any third parties.
 
-PhotoGrabber fully complies with the [https://developers.facebook.com/policy/ Facebook Platform Policy].  No user data is collected by PhotoGrabber servers or developers and queries are all performed using the official Facebook API.
+PhotoGrabber fully complies with the [https://developers.facebook.com/policy/ Facebook Platform Policy].  All communication is done directly between the desktop application and Facebook using the official Facebook API.  No user information is sent to the PhotoGrabber developers or third parties.
