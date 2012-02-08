@@ -2,15 +2,13 @@
 
 = What Information Do We Collect =
 
-For each login request Google App Engine logs:
-  * the IP address
-  * date and time
-  * browser 
+For each login request, Google App Engine collects the following information:
+  * Date and Time
+  * IP Address
+  * Browser User Agent String
 
+The [https://www.google.com/intl/en/policies/privacy/ Google Privacy Policy] applies this this data.
 
-= Details =
+No other information is collected when using the PhotoGrabber software.  The limited data made available by using the Google App engine is only used for development purposes and is not shared with any third parties.
 
-Add your content here.  Format your content with:
-  * Text in *bold* or _italic_
-  * Headings, paragraphs, and lists
-  * Automatic links to other wiki pages
+PhotoGrabber fully complies with the [https://developers.facebook.com/policy/ Facebook Platform Policy].  No user data is collected by PhotoGrabber servers or developers and queries are all performed using the official Facebook API.
