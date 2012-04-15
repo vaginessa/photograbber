@@ -8,7 +8,7 @@ class FBDownloader(Thread):
     REPLACE_RE = re.compile(r'\*|"|\'|:|<|>|\?|\\|/|\|,|\|| ')
 
     def __init__ (self, photos_path, uids, friends,
-                        full_albums, user_albums, extras, graph,
+                        tagged_photos, full_albums, user_albums, extras, graph,
                         update_callback, force_exit_callback):
         Thread.__init__(self)
         self.photos_path = photos_path
@@ -16,6 +16,7 @@ class FBDownloader(Thread):
         self.friends = friends
         self.graph = graph
         # options
+        self.tagged_photos = tagged_photos
         self.full_albums = full_albums
         self.user_albums = user_albums
         self.extras = extras
@@ -58,14 +59,15 @@ class FBDownloader(Thread):
     # functions to get FQL data
 
     def get_albums(self):
-        albumhelpers.get_tagged_albums(self.query_wrapper, self.uid, self.albums)
+        if self.tagged_photos:
+            albumhelpers.get_tagged_albums(self.query_wrapper, self.uid, self.albums)
         if self.user_albums:
             albumhelpers.get_uploaded_albums(self.query_wrapper, self.uid, self.albums)
 
     def get_pictures(self):
         if self.full_albums:
             albumhelpers.get_tagged_album_pictures(self.query_wrapper, self.uid, self.albums)
-        else:
+        elif self.tagged_photos:
             albumhelpers.get_tagged_pictures(self.query_wrapper, self.uid, self.albums)
 
         if self.user_albums:
@@ -120,9 +122,13 @@ class FBDownloader(Thread):
 
     # Reset modification times
     def fix_album(self, album):
-        album_path = os.path.join(self.photos_path, album['folder'])
-        os.utime(album_path, (int(album['modified']),) * 2)
-
+        try:
+            album_path = os.path.join(self.photos_path, album['folder'])
+            os.utime(album_path, (int(album['modified']),) * 2)
+        except Exception, e:
+            # Issue 108 fix
+            pass
+            
     # save_photo task is **successfully** completed
     def photo_saved(self, r):
         self.index += 1
