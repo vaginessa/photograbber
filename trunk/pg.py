@@ -61,10 +61,12 @@ class Application(Frame):
                                 selectmode=MULTIPLE)
         self.sb.config(command=self.lbPeople.yview)
         # check boxes
+        self.tagged_photos = BooleanVar()
         self.default_cb = Checkbutton(self.pFrame,
-                                      text="All tagged photos of the user")
+                                      text="All tagged photos of the user",
+                                      var=self.tagged_photos)
         self.default_cb.select()
-        self.default_cb["state"]=DISABLED
+        #self.default_cb["state"]=DISABLED
         self.default_cb.pack(fill=X)
 
         self.full_albums = BooleanVar()
@@ -172,9 +174,14 @@ class Application(Frame):
         self.directory = tkDirectoryChooser.askdirectory()
         logging.info('directory: %s' % self.directory)
 
+        # check if options make sense
+        if self.full_albums.get():
+            self.default_cb.select()
+            
         # show the fb login button
         if self.directory != "":
             self.lbPeople["state"]=DISABLED
+            self.default_cb["state"]=DISABLED
             self.full_cb["state"]=DISABLED
             self.user_cb["state"]=DISABLED
             self.extras_cb["state"]=DISABLED
@@ -193,6 +200,7 @@ class Application(Frame):
             # download
             logging.info('starting FBDownloader thread')
             self.dl = downloader.FBDownloader(self.directory, uids, friends,
+                                              self.tagged_photos.get(),
                                               self.full_albums.get(),
                                               self.user_albums.get(),
                                               self.extras.get(),
