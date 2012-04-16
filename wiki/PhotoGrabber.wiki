@@ -1,5 +1,16 @@
 #summary PhotoGrabber Changelog
 
+=== Revision 94: 15 Apr 2012 ===
+  * *FEATURE*: Download multiple people at once, Issue 18
+  * *FEATURE*: Only download albums uploaded by the user, Issue 79
+  * *FIX* - Issue 108: Download interrupted by album fix error
+  * *FIX* - Issue 72: Off by one display error
+  * *FIX* - Issue 35: Login token display error
+
+Known Issues:
+  * Non-ascii album/path names may still cause error (Issue 28)
+  * Paste login token does not work occasionally (Issue 59)
+
 === Revision 83: 6 July 2010 ===
   * *FIX* - Issue 30: "Entire album if it contains a tagged photo" feature now works
   * *FIX* - Issue 31: Error with pipe character in folder path
