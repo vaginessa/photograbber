@@ -255,7 +255,8 @@ RETURN_URL = "http://faceauth.appspot.com/"
 SCOPE = ''.join(['user_photo_video_tags,',
                  'friends_photo_video_tags,',
                  'user_photos,',
-                 'friends_photos'])
+                 'friends_photos,',
+                 'user_likes'])
 
 def getToken():
     """Prompt the user to login to facebook and obtain an OAuth token."""
