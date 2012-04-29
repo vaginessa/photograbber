@@ -139,12 +139,15 @@ class Application(Frame):
             try:
                 self.profile = self.graph.get_object('me')
                 friends = self.graph.get_object('me/friends')['data']
+                subscribedto = self.graph.get_object('me/subscribedto')['data']
+                pages = self.graph.get_object('me/likes')['data']
             except Exception, e:
                 m = ''.join(['There was a problem connecting to facebook,',
                             ' please try again:\n\n %s'])
                 showinfo("Error", m % e)
                 return
-
+            friends.extend(subscribedto)
+            friends.extend(pages)
             self.people = sorted(friends, key=lambda k:k['name'].lower())
 
             for person in self.people :
