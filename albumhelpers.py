@@ -88,11 +88,16 @@ def get_uploaded_albums(q_wrap, uid, albums):
 def get_tagged_pictures(q_wrap, uid, albums):
     '''add all pictures where the user is tagged'''
     # limit 5000 problem for this query
-    q = ''.join(['SELECT pid, aid, src_big, caption, created, object_id ',
+    q = ''.join(['SELECT pid, aid, images, caption, created, object_id ',
                  'FROM photo WHERE pid IN (SELECT pid FROM photo_tag ',
                  'WHERE subject="%s")']) % uid
 
     for photo in q_wrap(q):
+        width = 0
+        for image in photo['images']:
+            if image['width'] > width:
+                photo['src_big'] = image['source']
+                width = image['width']
         albums[photo['aid']]['photos'][photo['pid']] = photo
 
 
@@ -101,21 +106,31 @@ def get_tagged_album_pictures(q_wrap, uid, albums):
 
     album_ids = tuple(set('"%s"' % x for x in albums))
     # query in groups of 25 (limit 5000 each)
-    q = ''.join(['SELECT pid, aid, src_big, caption, ',
+    q = ''.join(['SELECT pid, aid, images, caption, ',
                  'created, object_id FROM photo WHERE aid IN (%s)'])
     for i in range(len(album_ids) / 25 + 1):
         aids = ','.join(album_ids[i * 25:(i+1) * 25])
 
         for photo in q_wrap(q % aids):
+            width = 0
+            for image in photo['images']:
+                if image['width'] > width:
+                    photo['src_big'] = image['source']
+                    width = image['width']
             albums[photo['aid']]['photos'][photo['pid']] = photo
 
 def get_user_album_pictures(q_wrap, uid, albums):
     '''all pictures in albums uploaded by the user'''
-    q = ''.join(['SELECT pid, aid, src_big, caption, created, ',
+    q = ''.join(['SELECT pid, aid, images, caption, created, ',
                  'object_id FROM photo WHERE aid IN (SELECT aid FROM ',
                  'album WHERE owner="%s")']) % uid
 
     for photo in q_wrap(q):
+        width = 0
+        for image in photo['images']:
+            if image['width'] > width:
+                photo['src_big'] = image['source']
+                width = image['width']
         albums[photo['aid']]['photos'][photo['pid']] = photo
 
 
