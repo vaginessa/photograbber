@@ -177,7 +177,7 @@ def add_photo_paths(album):
     '''set path info in album dictionary'''
     for photo in album['photos'].items():
         #photo[1]['path'] = os.path.join(album['folder'], '%s.jpg' % photo[0])
-        photo[1]['path'] = '%s.jpg' % photo[0]
+        photo[1]['path'] = '%s' % photo[1]['src_big'].split('/')[-1]
 
 # Save commands
 
