@@ -66,8 +66,7 @@ class Application(Frame):
                                       text="All tagged photos of the user",
                                       var=self.tagged_photos)
         self.default_cb.select()
-        #self.default_cb["state"]=DISABLED
-        self.default_cb.pack(fill=X)
+        
 
         self.full_albums = BooleanVar()
         self.full_cb = Checkbutton(self.pFrame,
@@ -84,6 +83,7 @@ class Application(Frame):
                                      text="Comments and tagging information",
                                      var=self.extras)
 
+        self.default_cb.pack(fill=X)
         self.full_cb.pack(fill=X)
         self.user_cb.pack(fill=X)
         self.extras_cb.pack(fill=X)
@@ -135,12 +135,16 @@ class Application(Frame):
             if self.tokenE.get() == "":
                 facebook.getToken() # in case the first time didn't work
                 return
+            logging.debug('creating graph')
             self.graph = facebook.GraphAPI(self.tokenE.get())
+            logging.debug('graph created')
             try:
+                logging.debug('loading info')
                 self.profile = self.graph.get_object('me')
                 friends = self.graph.get_object('me/friends')['data']
                 subscribedto = self.graph.get_object('me/subscribedto')['data']
                 pages = self.graph.get_object('me/likes')['data']
+                logging.debug('friends/subscriptions/pages loaded')
             except Exception, e:
                 m = ''.join(['There was a problem connecting to facebook,',
                             ' please try again:\n\n %s'])
@@ -149,25 +153,27 @@ class Application(Frame):
             friends.extend(subscribedto)
             friends.extend(pages)
             self.people = sorted(friends, key=lambda k:k['name'].lower())
-
+            logging.debug('friends sorted')
+            
             for person in self.people :
                 name = person['name']
                 self.lbPeople.insert(END, name)
-
+            logging.debug('names added')
+            
             me = dict(id=self.profile['id'],name="Myself")
             self.lbPeople.insert(0, "Myself")
             self.people.insert(0,me)
 
             # show the list of people
             self.pFrame.pack(fill=X)
-
+            logging.debug('frame packed')
         except Exception, e:
             self.error(e)
 
         self.tokenE["state"]=DISABLED
         self.bCreep["state"]=DISABLED
         self.bDownload.pack()
-
+        logging.debug('download packed')
 
     # download button event
     def download(self):
@@ -236,6 +242,7 @@ class Application(Frame):
     # oops an error happened! - callback from thread
     def error(self, e):
         logging.exception('There was a problem')
+        logging.exception('%s' % e)
         showinfo("ERROR!", "Non-recoverable error, try again!\n\n %s" % e)
         self.quit()
 

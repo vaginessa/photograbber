@@ -109,7 +109,7 @@ class FBDownloader(Thread):
         self.exit_if_terminated()
 
         # Get the file...
-        filename = os.path.join(album_path, '%s.jpg' % pid)
+        filename = os.path.join(album_path, photo['src_big'].split('/')[-1])
 
         # If file already exists don't download
         if os.path.isfile(filename):
