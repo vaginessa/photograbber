@@ -93,7 +93,7 @@ def get_tagged_pictures(q_wrap, uid, albums):
                  'WHERE subject="%s")']) % uid
 
     for photo in q_wrap(q):
-        width = 0
+        width = -1
         for image in photo['images']:
             if image['width'] > width:
                 photo['src_big'] = image['source']
@@ -112,7 +112,7 @@ def get_tagged_album_pictures(q_wrap, uid, albums):
         aids = ','.join(album_ids[i * 25:(i+1) * 25])
 
         for photo in q_wrap(q % aids):
-            width = 0
+            width = -1
             for image in photo['images']:
                 if image['width'] > width:
                     photo['src_big'] = image['source']
@@ -126,7 +126,7 @@ def get_user_album_pictures(q_wrap, uid, albums):
                  'album WHERE owner="%s")']) % uid
 
     for photo in q_wrap(q):
-        width = 0
+        width = -1
         for image in photo['images']:
             if image['width'] > width:
                 photo['src_big'] = image['source']
