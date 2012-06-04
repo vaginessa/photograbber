@@ -1,6 +1,10 @@
 #summary PhotoGrabber Changelog
+=== Revision 99: 3 June 2012 ===
+  * *FEATURE*: Download 'liked' and 'subscribed' pages and users (Issue 99 and Issue 101)
+  * *FIX* - Issue 81: Download highest resolution photo available
+  * *FIX* - Issue 40: Preserve Facebook file naming
 
-=== Revision 94: 15 Apr 2012 ===
+=== Revision 94: 15 April 2012 ===
   * *FEATURE*: Download multiple people at once, Issue 18
   * *FEATURE*: Only download albums uploaded by the user, Issue 79
   * *FIX* - Issue 108: Download interrupted by album fix error
