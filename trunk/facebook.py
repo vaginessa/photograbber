@@ -252,9 +252,7 @@ import webbrowser
 
 CLIENT_ID = "139730900025" # old_id: "227fe70470173eca69e4b38b6518fbfda"
 RETURN_URL = "http://faceauth.appspot.com/"
-SCOPE = ''.join(['user_photo_video_tags,',
-                 'friends_photo_video_tags,',
-                 'user_photos,',
+SCOPE = ''.join(['user_photos,',
                  'friends_photos,',
                  'user_likes'])
 
