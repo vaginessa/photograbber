@@ -1,5 +1,5 @@
 #summary Directions on how to download and use PhotoGrabber on Linux
-#labels Featured,Linux
+#labels Linux
 
 == Instructions ==
 {{{
